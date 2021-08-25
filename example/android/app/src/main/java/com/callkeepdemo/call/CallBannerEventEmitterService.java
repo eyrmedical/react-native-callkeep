@@ -7,7 +7,7 @@ import com.facebook.react.HeadlessJsTaskService;
 import com.facebook.react.bridge.*;
 import com.facebook.react.jstasks.HeadlessJsTaskConfig;
 
-public class CallNotificationEventEmitterService extends HeadlessJsTaskService {
+public class CallBannerEventEmitterService extends HeadlessJsTaskService {
     @Nullable
     protected HeadlessJsTaskConfig getTaskConfig(Intent intent) {
         Bundle extras = intent.getExtras();

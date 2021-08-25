@@ -13,7 +13,7 @@ public class BackgroundCallReceiver extends BroadcastReceiver {
         RemoteMessage remoteMessage = new RemoteMessage(intent.getExtras());
         if (remoteMessage.getNotification() != null) {
             Log.d("JarvisL", "CallNotificationEventEmitter called from Service native");
-            Intent backgroundIntent = new Intent(context, CallNotificationEventEmitterService.class);
+            Intent backgroundIntent = new Intent(context, CallBannerEventEmitterService.class);
             context.startService(backgroundIntent);
             HeadlessJsTaskService.acquireWakeLockNow(context);
         }
