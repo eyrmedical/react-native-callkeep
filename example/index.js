@@ -2,10 +2,11 @@
  * @format
  */
 
-import {AppRegistry, NativeModules} from 'react-native';
+import {AppRegistry} from 'react-native';
 // We need to import the native module outside the registerHeadlessTask function to make
 // sure the react context bundle it as well during headless task execution.
 import BackgroundTimer from 'react-native-background-timer';
+import {BackgroundCallBannerModule} from './BackgroundCallBannerModule';
 import App from './App1';
 import {name as appName} from './app.json';
 
@@ -20,7 +21,6 @@ AppRegistry.registerHeadlessTask(
     console.log('setTimeout: ', typeof BackgroundTimer.setTimeout);
     console.log('start: ', typeof BackgroundTimer.start);
     console.log('websocket: ', typeof WebSocket.name);
-    const BackgroundCallBannerModule = NativeModules.BackgroundCallBannerModule;
     try {
       console.log(
         'CallNotificationEventEmitter called from background service',
@@ -31,7 +31,7 @@ AppRegistry.registerHeadlessTask(
       //   } else {
       //     console.log('No data');
       //   }
-      //   BackgroundCallBannerModule.startCallBanner({});
+      BackgroundCallBannerModule.startCallBanner({});
     } catch (error) {
       console.log(`Error trying to run headless task: ${error.message}`);
     }
@@ -46,7 +46,8 @@ AppRegistry.registerHeadlessTask(
       };
       setTimeout(() => {
         webSocket.close();
-        console.log('timer called CallNotificationEventEmitter');
+        BackgroundCallBannerModule.stopCallBanner();
+        console.log('call banner dismissed');
         resolve();
       }, 10000);
     });

@@ -14,8 +14,6 @@ import static com.callkeepdemo.call.BackgroundCallBannerModule.*;
 public class CallBannerDisplayService extends Service {
     public static final int CALL_NOTIFICATION_ID = 23;
 
-    public static final String DISMISS_BANNER = "DISMISS_BANNER";
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
