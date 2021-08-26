@@ -28,15 +28,24 @@ AppRegistry.registerHeadlessTask(
       //   } else {
       //     console.log('No data');
       //   }
-      BackgroundCallBannerModule.startCallBanner();
+    //   BackgroundCallBannerModule.startCallBanner({});
     } catch (error) {
       console.log(`Error trying to run headless task: ${error.message}`);
     }
     return new Promise(resolve => {
+      const webSocket = new WebSocket('ws://localhost:9898');
+      webSocket.onopen = event => {
+        console.log('WebSocket connected');
+        webSocket.send('Q1');
+      };
+      webSocket.onmessage = event => {
+        console.log('Response from server: ', event.data);
+      };
       BackgroundTimer.setTimeout(() => {
+        webSocket.close();
         console.log('timer called CallNotificationEventEmitter');
         resolve();
-      }, 2000);
+      }, 10000);
     });
   },
 );

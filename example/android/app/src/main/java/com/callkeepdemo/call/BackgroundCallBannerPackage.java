@@ -16,7 +16,7 @@ public class BackgroundCallBannerPackage implements ReactPackage {
     @NotNull
     @Override
     public List<NativeModule> createNativeModules(@NonNull @NotNull ReactApplicationContext reactContext) {
-        return Arrays.asList(new BackgroundCallBannerModule());
+        return Arrays.asList(new BackgroundCallBannerModule(reactContext));
     }
 
     @NonNull
