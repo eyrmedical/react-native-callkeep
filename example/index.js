@@ -17,6 +17,7 @@ AppRegistry.registerHeadlessTask(
   () => async taskData => {
     // Bind to the BackgroundTimer object to preserve the `this` object in its own implementation
     global.setTimeout = BackgroundTimer.setTimeout.bind(BackgroundTimer);
+    global.clearTimeout = BackgroundTimer.clearTimeout.bind(BackgroundTimer);
     global.setInterval = BackgroundTimer.setInterval.bind(BackgroundTimer);
     console.log('setTimeout: ', typeof BackgroundTimer.setTimeout);
     console.log('start: ', typeof BackgroundTimer.start);
@@ -44,12 +45,17 @@ AppRegistry.registerHeadlessTask(
       webSocket.onmessage = event => {
         console.log('Response from server: ', event.data);
       };
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         webSocket.close();
         BackgroundCallBannerModule.stopCallBanner();
         console.log('call banner dismissed');
         resolve();
-      }, 10000);
+      }, 40000);
+      webSocket.onclose = event => {
+        clearTimeout(timeoutId);
+        console.log('server closed connection');
+        resolve();
+      };
     });
   },
 );
