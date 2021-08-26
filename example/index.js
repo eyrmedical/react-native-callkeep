@@ -14,6 +14,9 @@ AppRegistry.registerComponent(appName, () => App);
 AppRegistry.registerHeadlessTask(
   'CallNotificationEventEmitter',
   () => async taskData => {
+    // Bind to the BackgroundTimer object to preserve the `this` object in its own implementation
+    global.setTimeout = BackgroundTimer.setTimeout.bind(BackgroundTimer);
+    global.setInterval = BackgroundTimer.setInterval.bind(BackgroundTimer);
     console.log('setTimeout: ', typeof BackgroundTimer.setTimeout);
     console.log('start: ', typeof BackgroundTimer.start);
     console.log('websocket: ', typeof WebSocket.name);
@@ -28,7 +31,7 @@ AppRegistry.registerHeadlessTask(
       //   } else {
       //     console.log('No data');
       //   }
-    //   BackgroundCallBannerModule.startCallBanner({});
+      //   BackgroundCallBannerModule.startCallBanner({});
     } catch (error) {
       console.log(`Error trying to run headless task: ${error.message}`);
     }
@@ -41,7 +44,7 @@ AppRegistry.registerHeadlessTask(
       webSocket.onmessage = event => {
         console.log('Response from server: ', event.data);
       };
-      BackgroundTimer.setTimeout(() => {
+      setTimeout(() => {
         webSocket.close();
         console.log('timer called CallNotificationEventEmitter');
         resolve();
