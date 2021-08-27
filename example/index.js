@@ -6,6 +6,7 @@ import {AppRegistry} from 'react-native';
 // We need to import the native module outside the registerHeadlessTask function to make
 // sure the react context bundle it as well during headless task execution.
 import BackgroundTimer from 'react-native-background-timer';
+import {Socket} from 'phoenix';
 import {BackgroundCallBannerModule} from './BackgroundCallBannerModule';
 import App from './App1';
 import {name as appName} from './app.json';
@@ -37,21 +38,21 @@ AppRegistry.registerHeadlessTask(
       console.log(`Error trying to run headless task: ${error.message}`);
     }
     return new Promise(resolve => {
-      const webSocket = new WebSocket('ws://localhost:9898');
-      webSocket.onopen = event => {
-        console.log('WebSocket connected');
-        webSocket.send('Q1');
-      };
-      webSocket.onmessage = event => {
-        console.log('Response from server: ', event.data);
-      };
+      const socket = new Socket('ws://localhost:9898');
+      socket.onMessage(msg => console.log('Got message'));
+      socket.onOpen(() => {
+        console.log('WebSocket connected, sending Q1');
+        socket.push('Q1');
+      });
+      socket.connect();
       const timeoutId = setTimeout(() => {
-        webSocket.close();
-        BackgroundCallBannerModule.stopCallBanner();
-        console.log('call banner dismissed');
-        resolve();
+        socket.disconnect(() => {
+          BackgroundCallBannerModule.stopCallBanner();
+          console.log('call banner dismissed');
+          resolve();
+        });
       }, 40000);
-      webSocket.onclose = event => {
+      socket.onClose = event => {
         clearTimeout(timeoutId);
         BackgroundCallBannerModule.stopCallBanner();
         console.log('server closed connection');
