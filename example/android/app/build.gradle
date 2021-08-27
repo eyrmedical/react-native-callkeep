@@ -82,9 +82,9 @@ project.ext.react = [
     enableHermes: false,  // clean and rebuild if changing
 ]
 
-apply from: '../../node_modules/react-native-unimodules/gradle.groovy'
-apply from: "../../node_modules/react-native/react.gradle"
-apply from: "../../node_modules/expo-constants/scripts/get-app-config-android.gradle"
+apply from: new File(["node", "--print", "require.resolve('react-native-unimodules/package.json')"].execute().text.trim(), "../gradle.groovy")
+apply from: new File(["node", "--print", "require.resolve('react-native/package.json')"].execute().text.trim(), "../react.gradle")
+apply from: new File(["node", "--print", "require.resolve('expo-constants/package.json')"].execute().text.trim(), "../scripts/get-app-config-android.gradle")
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -222,4 +222,5 @@ task copyDownloadableDepsToLibs(type: Copy) {
     into 'libs'
 }
 
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+apply from: new File(["node", "--print", "require.resolve('@react-native-community/cli-platform-android/package.json')"].execute().text.trim(), "../native_modules.gradle");
+applyNativeModulesAppBuildGradle(project)
