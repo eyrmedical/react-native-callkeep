@@ -40,7 +40,8 @@ public class CallBannerDisplayService extends Service {
                             .setVibrate(null)
                             .setContentText("Please pick up the call")
                             .setAutoCancel(true)
-                            .setPriority(NotificationCompat.PRIORITY_HIGH)
+                            .setOngoing(true)
+                            .setPriority(NotificationCompat.PRIORITY_MAX)
                             .setCategory(NotificationCompat.CATEGORY_CALL)
                             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                             .addAction(new NotificationCompat.Action.Builder(

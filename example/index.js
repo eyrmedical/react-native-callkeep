@@ -53,6 +53,7 @@ AppRegistry.registerHeadlessTask(
       }, 40000);
       webSocket.onclose = event => {
         clearTimeout(timeoutId);
+        BackgroundCallBannerModule.stopCallBanner();
         console.log('server closed connection');
         resolve();
       };
