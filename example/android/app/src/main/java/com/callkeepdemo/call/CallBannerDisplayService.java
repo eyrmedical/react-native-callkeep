@@ -3,9 +3,12 @@ package com.callkeepdemo.call;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import com.callkeepdemo.MainActivity;
+import com.callkeepdemo.R;
 
 import java.util.HashMap;
 
@@ -27,17 +30,26 @@ public class CallBannerDisplayService extends Service {
         Intent dismissBannerIntent = new Intent(this, CallBannerDisplayService.class);
         dismissBannerIntent.setAction(DISMISS_BANNER);
 
+        Intent openAppWithCall = new Intent(this, MainActivity.class);
+        openAppWithCall.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        Bundle openAppWithCallInitialProps = new Bundle();
+        openAppWithCallInitialProps.putBoolean("isCall", true);
+        openAppWithCall.putExtras(openAppWithCallInitialProps);
+
         PendingIntent pendingDismissBannerIntent = PendingIntent.getService(getApplicationContext(), 0,
                 dismissBannerIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent openAppWithCallIntent = PendingIntent.getActivity(getApplicationContext(), 0, openAppWithCall, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (action.equals(START_CALL_BANNER)) {
             HashMap<String, String> payload = (HashMap<String, String>) intent.getSerializableExtra(ACTION_PAYLOAD_KEY);
             NotificationCompat.Builder notificationBuilder =
                     new NotificationCompat.Builder(this, CALL_INCOMING_CHANNEL_ID)
 //                            .setContentTitle(payload.get("caller_name"))
+                            // Add small icon is a must so that the notification content can be customized
+                            // https://stackoverflow.com/questions/34225779/how-to-set-the-app-icon-as-the-notification-icon-in-the-notification-drawer
+                            .setSmallIcon(R.mipmap.ic_launcher)
                             .setContentTitle("Test caller")
-                            .setSound(null)
-                            .setVibrate(null)
                             .setContentText("Please pick up the call")
                             .setAutoCancel(true)
                             .setOngoing(true)
@@ -45,10 +57,14 @@ public class CallBannerDisplayService extends Service {
                             .setCategory(NotificationCompat.CATEGORY_CALL)
                             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                             .addAction(new NotificationCompat.Action.Builder(
-                                    0,
+                                    R.mipmap.ic_launcher,
                                     "Accept",
+                                    openAppWithCallIntent).build())
+                            .addAction(new NotificationCompat.Action.Builder(
+                                    R.mipmap.ic_launcher,
+                                    "Decline",
                                     pendingDismissBannerIntent).build())
-                            .setContentIntent(pendingDismissBannerIntent);
+                            .setContentIntent(openAppWithCallIntent);
 
             startForeground(CALL_NOTIFICATION_ID, notificationBuilder.build());
         }

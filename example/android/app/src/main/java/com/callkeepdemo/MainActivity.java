@@ -1,6 +1,10 @@
 package com.callkeepdemo;
 
+import android.content.Intent;
+import android.os.Bundle;
+import androidx.annotation.Nullable;
 import com.facebook.react.ReactActivity;
+import com.facebook.react.ReactActivityDelegate;
 
 public class MainActivity extends ReactActivity {
 
@@ -11,5 +15,17 @@ public class MainActivity extends ReactActivity {
   @Override
   protected String getMainComponentName() {
     return "CallKeepDemo";
+  }
+
+  @Override
+  protected ReactActivityDelegate createReactActivityDelegate() {
+    return new ReactActivityDelegate(this, this.getMainComponentName()) {
+      @Nullable
+      @Override
+      protected Bundle getLaunchOptions() {
+        Intent intent = getIntent();
+        return intent.getExtras();
+      }
+    };
   }
 }

@@ -27,10 +27,16 @@ PushNotification.createChannel(
     ), // (optional) callback returns whether the channel was created, false means it already existed.
 );
 
-export default function App() {
+PushNotification.configure({
+  onNotification(notification) {
+    console.log(JSON.stringify(notification));
+  },
+});
+
+export default function App(props) {
   return (
     <View style={{flex: 1}}>
-      <Text>Test</Text>
+      <Text>App is call: {props.isCall ? 'Yes' : 'No'}</Text>
     </View>
   );
 }
