@@ -36,7 +36,7 @@ PushNotification.configure({
 export default function App(props) {
   return (
     <View style={{flex: 1}}>
-      <Text>App is call: {props.isCall ? 'Yes' : 'No'}</Text>
+      <Text>Props {JSON.stringify(props)}</Text>
     </View>
   );
 }

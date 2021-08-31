@@ -37,16 +37,24 @@ public class CallBannerDisplayService extends Service {
         Intent dismissBannerIntent = new Intent(this, CallBannerDisplayService.class);
         dismissBannerIntent.setAction(DISMISS_BANNER);
 
-        Intent openAppWithCall = new Intent(this, MainActivity.class);
-        openAppWithCall.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        Bundle openAppWithCallInitialProps = new Bundle();
-        openAppWithCallInitialProps.putBoolean("isCall", true);
-        openAppWithCall.putExtras(openAppWithCallInitialProps);
+        Intent acceptCallAndOpenApp = new Intent(this, MainActivity.class);
+        acceptCallAndOpenApp.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        Bundle acceptCallAndOpenAppInitialProps = new Bundle();
+        acceptCallAndOpenAppInitialProps.putBoolean("isCallAccepted", true);
+        acceptCallAndOpenApp.putExtras(acceptCallAndOpenAppInitialProps);
+
+        Intent openIncomingCallScreen = new Intent(this, MainActivity.class);
+        acceptCallAndOpenApp.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        Bundle openIncomingCallScreenInitialProps = new Bundle();
+        openIncomingCallScreenInitialProps.putBoolean("isIncomingCall", true);
+        acceptCallAndOpenApp.putExtras(openIncomingCallScreenInitialProps);
 
         PendingIntent pendingDismissBannerIntent = PendingIntent.getService(getApplicationContext(), 0,
                 dismissBannerIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        PendingIntent openAppWithCallIntent = PendingIntent.getActivity(getApplicationContext(), 0, openAppWithCall, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent acceptCallPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, acceptCallAndOpenApp, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent openIncomingCallScreenPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, openIncomingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (action.equals(START_CALL_BANNER)) {
             HashMap<String, String> payload = (HashMap<String, String>) intent.getSerializableExtra(ACTION_PAYLOAD_KEY);
@@ -66,12 +74,12 @@ public class CallBannerDisplayService extends Service {
                             .addAction(new NotificationCompat.Action.Builder(
                                     R.mipmap.ic_launcher,
                                     "Accept",
-                                    openAppWithCallIntent).build())
+                                    acceptCallPendingIntent).build())
                             .addAction(new NotificationCompat.Action.Builder(
                                     R.mipmap.ic_launcher,
                                     "Decline",
                                     pendingDismissBannerIntent).build())
-                            .setContentIntent(openAppWithCallIntent);
+                            .setContentIntent(openIncomingCallScreenPendingIntent);
 
             startForeground(CALL_NOTIFICATION_ID, notificationBuilder.build());
         }
