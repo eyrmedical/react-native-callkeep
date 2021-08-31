@@ -57,12 +57,14 @@ AppRegistry.registerHeadlessTask(
       const callEventListener = callEventEmitter.addListener(
         'CALL_IS_DECLINED',
         () => {
-          clearTimeout(timeoutId);
           callEventListener.remove();
           console.log('call declined');
-          BackgroundCallBannerModule.stopCallBanner();
+          socket.disconnect(() => {
+            BackgroundCallBannerModule.stopCallBanner();
+            console.log('call banner dismissed');
+            resolve();
+          });
           // Send final message to server that call is declined, then resolve
-          resolve();
         },
       );
       socket.onClose = event => {
