@@ -15,18 +15,11 @@ import java.util.List;
 
 public class BackgroundCallBannerPackage implements ReactPackage {
 
-    private Application application;
-
-    public BackgroundCallBannerPackage(Application application) {
-        super();
-        this.application = application;
-    }
-
     @NonNull
     @NotNull
     @Override
     public List<NativeModule> createNativeModules(@NonNull @NotNull ReactApplicationContext reactContext) {
-        return Arrays.asList(new BackgroundCallBannerModule(reactContext, this.application));
+        return Arrays.asList(new BackgroundCallBannerModule(reactContext));
     }
 
     @NonNull

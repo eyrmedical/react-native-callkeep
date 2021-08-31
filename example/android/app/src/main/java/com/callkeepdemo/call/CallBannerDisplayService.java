@@ -5,10 +5,17 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import com.callkeepdemo.MainActivity;
+import com.callkeepdemo.MainApplication;
 import com.callkeepdemo.R;
+import com.facebook.react.ReactInstanceManager;
+import com.facebook.react.ReactNativeHost;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableNativeArray;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.HashMap;
 
@@ -70,7 +77,18 @@ public class CallBannerDisplayService extends Service {
         }
 
         if (action.equals(DISMISS_BANNER)) {
-            stopForeground(true);
+            MainApplication application = (MainApplication) this.getApplication();
+
+            ReactNativeHost reactNativeHost = application.getReactNativeHost();
+            ReactInstanceManager reactInstanceManager = reactNativeHost.getReactInstanceManager();
+            ReactContext reactContext = reactInstanceManager.getCurrentReactContext();
+
+            Log.d("ReactNativeJS", "trying to get react context " + (reactContext == null ? "No :(" : "Yes!"));
+            if (reactContext != null) {
+                reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                        .emit("CALL_IS_DECLINED", null);
+            }
+//            stopForeground(true);
         }
 
         return START_NOT_STICKY;

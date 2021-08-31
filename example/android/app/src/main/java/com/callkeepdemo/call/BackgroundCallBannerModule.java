@@ -2,6 +2,7 @@ package com.callkeepdemo.call;
 
 import android.app.Application;
 import android.content.Intent;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.facebook.react.bridge.*;
@@ -16,11 +17,11 @@ public class BackgroundCallBannerModule extends ReactContextBaseJavaModule {
     public static final String DISMISS_BANNER = "DISMISS_BANNER";
     public static final String ACTION_PAYLOAD_KEY = "ACTION_PAYLOAD_KEY";
 
-    private Application application;
+    private ReactApplicationContext reactContext;
 
-    public BackgroundCallBannerModule(ReactApplicationContext reactContext, Application application) {
+    public BackgroundCallBannerModule(ReactApplicationContext reactContext) {
         super(reactContext);
-        this.application = application;
+        this.reactContext = reactContext;
     }
 
     @NonNull
@@ -32,18 +33,18 @@ public class BackgroundCallBannerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void startCallBanner(@Nullable ReadableMap callBannerPayload) {
-        Intent intent = new Intent(application, CallBannerDisplayService.class);
+        Intent intent = new Intent(reactContext.getApplicationContext(), CallBannerDisplayService.class);
         // TODO: convert callBannerPayload to native map
         HashMap<String, String> nativeCallBannerPayload = new HashMap<>();
         intent.setAction(START_CALL_BANNER);
         intent.putExtra(ACTION_PAYLOAD_KEY, nativeCallBannerPayload);
-        application.startService(intent);
+        reactContext.getApplicationContext().startService(intent);
     }
 
     @ReactMethod
     public void stopCallBanner() {
-        Intent intent = new Intent(application, CallBannerDisplayService.class);
-        application.stopService(intent);
+        Intent intent = new Intent(reactContext.getApplicationContext(), CallBannerDisplayService.class);
+        reactContext.getApplicationContext().stopService(intent);
     }
 
     @Override

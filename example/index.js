@@ -2,7 +2,7 @@
  * @format
  */
 
-import {AppRegistry} from 'react-native';
+import {AppRegistry, NativeEventEmitter} from 'react-native';
 // We need to import the native module outside the registerHeadlessTask function to make
 // sure the react context bundle it as well during headless task execution.
 import BackgroundTimer from 'react-native-background-timer';
@@ -17,6 +17,7 @@ AppRegistry.registerHeadlessTask(
   'CallNotificationEventEmitter',
   () => async taskData => {
     // Bind to the BackgroundTimer object to preserve the `this` object in its own implementation
+    const callEventEmitter = new NativeEventEmitter();
     global.setTimeout = BackgroundTimer.setTimeout.bind(BackgroundTimer);
     global.clearTimeout = BackgroundTimer.clearTimeout.bind(BackgroundTimer);
     global.setInterval = BackgroundTimer.setInterval.bind(BackgroundTimer);
@@ -45,6 +46,7 @@ AppRegistry.registerHeadlessTask(
         socket.push('Q1');
       });
       socket.connect();
+
       const timeoutId = setTimeout(() => {
         socket.disconnect(() => {
           BackgroundCallBannerModule.stopCallBanner();
@@ -52,6 +54,17 @@ AppRegistry.registerHeadlessTask(
           resolve();
         });
       }, 40000);
+      const callEventListener = callEventEmitter.addListener(
+        'CALL_IS_DECLINED',
+        () => {
+          clearTimeout(timeoutId);
+          callEventListener.remove();
+          console.log('call declined');
+          BackgroundCallBannerModule.stopCallBanner();
+          // Send final message to server that call is declined, then resolve
+          resolve();
+        },
+      );
       socket.onClose = event => {
         clearTimeout(timeoutId);
         BackgroundCallBannerModule.stopCallBanner();
