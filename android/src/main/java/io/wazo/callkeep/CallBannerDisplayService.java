@@ -1,4 +1,4 @@
-package com.callkeepdemo.call;
+package io.wazo.callkeep;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -9,7 +9,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import com.callkeepdemo.MainActivity;
-import com.callkeepdemo.MainApplication;
+import com.facebook.react.ReactApplication;
 import com.callkeepdemo.R;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
@@ -19,7 +19,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.HashMap;
 
-import static com.callkeepdemo.call.BackgroundCallBannerModule.*;
+import static io.wazo.callkeep.BackgroundCallBannerModule.*;
 
 public class CallBannerDisplayService extends Service {
     public static final int CALL_NOTIFICATION_ID = 23;
@@ -85,7 +85,7 @@ public class CallBannerDisplayService extends Service {
         }
 
         if (action.equals(DISMISS_BANNER)) {
-            MainApplication application = (MainApplication) this.getApplication();
+            ReactApplication application = (ReactApplication) this.getApplication();
 
             ReactNativeHost reactNativeHost = application.getReactNativeHost();
             ReactInstanceManager reactInstanceManager = reactNativeHost.getReactInstanceManager();

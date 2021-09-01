@@ -1,4 +1,4 @@
-package com.callkeepdemo.call;
+package io.wazo.callkeep;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
