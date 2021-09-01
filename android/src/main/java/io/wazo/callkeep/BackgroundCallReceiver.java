@@ -3,7 +3,6 @@ package io.wazo.callkeep;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import com.facebook.react.HeadlessJsTaskService;
 import com.google.firebase.messaging.RemoteMessage;
 

@@ -37,7 +37,7 @@ public class CallBannerDisplayService extends Service {
 
         Context applicationContext = this.getApplicationContext();
         // TODO: Do not hard code MainActivity since the app itself can use a different class name
-        String mainActivityClassName = applicationContext.getPackageName() + "MainActivity";
+        String mainActivityClassName = applicationContext.getPackageName() + ".MainActivity";
         Class mainActivityClass = null;
         try {
             mainActivityClass = Class.forName(mainActivityClassName);
