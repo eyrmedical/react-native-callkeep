@@ -17,7 +17,9 @@ public class EyrCallkeepPackage implements ReactPackage {
     @NonNull
     @Override
     public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
-        return Arrays.asList(new EyrCallBannerControllerModule(reactContext));
+        ArrayList<NativeModule> modules = new ArrayList<>();
+        modules.add(new EyrCallBannerControllerModule(reactContext));
+        return modules;
     }
 
     @NonNull
