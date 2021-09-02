@@ -6,7 +6,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.facebook.react.bridge.*;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +27,6 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
     }
 
     @NonNull
-    @NotNull
     @Override
     public String getName() {
         return "EyrCallBannerControllerModule";
@@ -56,7 +54,6 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
     }
 
     @Nullable
-    @org.jetbrains.annotations.Nullable
     @Override
     public Map<String, Object> getConstants() {
         HashMap<String, Object> constants = new HashMap<>();
