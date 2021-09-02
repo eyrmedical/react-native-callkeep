@@ -32,7 +32,7 @@ public class EyrCallBannerDisplayService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent.getAction();
 
-        Intent dismissBannerIntent = new Intent(this, CallBannerDisplayService.class);
+        Intent dismissBannerIntent = new Intent(this, this.class);
         dismissBannerIntent.setAction(DISMISS_BANNER);
 
         Context applicationContext = this.getApplicationContext();
