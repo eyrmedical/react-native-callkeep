@@ -22,7 +22,7 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
 
     private ReactApplicationContext reactContext;
 
-    public BackgroundCallBannerModule(ReactApplicationContext reactContext) {
+    public EyrCallBannerControllerModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
     }
