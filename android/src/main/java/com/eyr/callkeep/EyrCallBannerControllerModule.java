@@ -12,7 +12,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
-    public static final String CALL_INCOMING_CHANNEL_ID = "Ongoing Call";
+    // TODO: Make the consumer application to configure their own name and id for the call
+    // banner channel
+    public static final String CALL_INCOMING_CHANNEL_NAME = "Ongoing Call";
+    public static final String CALL_INCOMING_CHANNEL_ID = "com.eyr.callkeep.incoming_call";
     public static final String START_CALL_BANNER = "START_CALL_BANNER";
     public static final String DISMISS_BANNER = "DISMISS_BANNER";
     public static final String ACTION_PAYLOAD_KEY = "ACTION_PAYLOAD_KEY";
@@ -28,7 +31,7 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
     @NotNull
     @Override
     public String getName() {
-        return "BackgroundCallBannerModule";
+        return "EyrCallBannerControllerModule";
     }
 
     @ReactMethod
@@ -57,6 +60,7 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
     @Override
     public Map<String, Object> getConstants() {
         HashMap<String, Object> constants = new HashMap<>();
+        constants.put("CALL_INCOMING_CHANNEL_NAME", CALL_INCOMING_CHANNEL_NAME);
         constants.put("CALL_INCOMING_CHANNEL_ID", CALL_INCOMING_CHANNEL_ID);
         return constants;
     }
