@@ -17,7 +17,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.HashMap;
 
-import static com.eyr.callkeep.BackgroundCallBannerModule.*;
+import static com.eyr.callkeep.EyrCallBannerControllerModule.*;
 
 public class EyrCallBannerDisplayService extends Service {
     public static final int CALL_NOTIFICATION_ID = 23;
