@@ -22,7 +22,7 @@ project(':react-native-callkeep').projectDir = new File(rootProject.projectDir, 
 3. In `android/app/src/main/java/.../MainApplication.java`:
 
 ```java
-import io.wazo.callkeep.RNCallKeepPackage; // Add this import line
+import com.eyr.callkeep.RNCallKeepPackage; // Add this import line
 //...
 
 private static List<ReactPackage> getPackages() {
@@ -36,7 +36,7 @@ private static List<ReactPackage> getPackages() {
 4. Add permissionResult listener in `MainActivity.java`:
 
 ```java
-import io.wazo.callkeep.RNCallKeepModule; // Add these import lines
+import com.eyr.callkeep.RNCallKeepModule; // Add these import lines
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -68,7 +68,7 @@ public class MainActivity extends ReactActivity {
 
 <application>
     // ...
-    <service android:name="io.wazo.callkeep.VoiceConnectionService"
+    <service android:name="com.eyr.callkeep.VoiceConnectionService"
         android:label="Wazo"
         android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE"
         // Use this to target android >= 11
@@ -92,7 +92,7 @@ Beware to choose the right `foregroundServiceType` depending on the version of A
 Add this in the `application` node of `android/app/src/main/AndroidManifest.xml` :
 
 ```xml
-<service android:name="io.wazo.callkeep.RNCallKeepBackgroundMessagingService" />
+<service android:name="com.eyr.callkeep.RNCallKeepBackgroundMessagingService" />
 ```
 
 

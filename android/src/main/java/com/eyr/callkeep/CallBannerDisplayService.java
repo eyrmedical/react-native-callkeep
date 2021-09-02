@@ -1,4 +1,4 @@
-package io.wazo.callkeep;
+package com.eyr.callkeep;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -17,7 +17,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.HashMap;
 
-import static io.wazo.callkeep.BackgroundCallBannerModule.*;
+import static com.eyr.callkeep.BackgroundCallBannerModule.*;
 
 public class CallBannerDisplayService extends Service {
     public static final int CALL_NOTIFICATION_ID = 23;

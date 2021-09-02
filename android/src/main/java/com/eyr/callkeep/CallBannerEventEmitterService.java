@@ -1,4 +1,4 @@
-package io.wazo.callkeep;
+package com.eyr.callkeep;
 
 import android.content.Intent;
 import android.os.Bundle;

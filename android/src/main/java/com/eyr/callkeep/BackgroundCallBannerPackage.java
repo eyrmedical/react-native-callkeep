@@ -1,4 +1,4 @@
-package io.wazo.callkeep;
+package com.eyr.callkeep;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
