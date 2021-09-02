@@ -19,7 +19,7 @@ import java.util.HashMap;
 
 import static com.eyr.callkeep.BackgroundCallBannerModule.*;
 
-public class CallBannerDisplayService extends Service {
+public class EyrCallBannerDisplayService extends Service {
     public static final int CALL_NOTIFICATION_ID = 23;
 
     @Nullable

@@ -13,13 +13,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BackgroundCallBannerPackage implements ReactPackage {
+public class EyrCallkeepPackage implements ReactPackage {
 
     @NonNull
     @NotNull
     @Override
     public List<NativeModule> createNativeModules(@NonNull @NotNull ReactApplicationContext reactContext) {
-        return Arrays.asList(new BackgroundCallBannerModule(reactContext));
+        return Arrays.asList(new EyrCallBannerControllerModule(reactContext));
     }
 
     @NonNull

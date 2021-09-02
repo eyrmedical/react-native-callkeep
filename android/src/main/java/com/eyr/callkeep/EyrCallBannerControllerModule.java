@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BackgroundCallBannerModule extends ReactContextBaseJavaModule {
+public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
     public static final String CALL_INCOMING_CHANNEL_ID = "Ongoing Call";
     public static final String START_CALL_BANNER = "START_CALL_BANNER";
     public static final String DISMISS_BANNER = "DISMISS_BANNER";
@@ -33,7 +33,7 @@ public class BackgroundCallBannerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void startCallBanner(@Nullable ReadableMap callBannerPayload) {
-        Intent intent = new Intent(reactContext.getApplicationContext(), CallBannerDisplayService.class);
+        Intent intent = new Intent(reactContext.getApplicationContext(), EyrCallBannerDisplayService.class);
         // TODO: convert callBannerPayload to native map
         HashMap<String, String> nativeCallBannerPayload = new HashMap<>();
         intent.setAction(START_CALL_BANNER);
@@ -43,7 +43,7 @@ public class BackgroundCallBannerModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void stopCallBanner() {
-        Intent intent = new Intent(reactContext.getApplicationContext(), CallBannerDisplayService.class);
+        Intent intent = new Intent(reactContext.getApplicationContext(), EyrCallBannerDisplayService.class);
         reactContext.getApplicationContext().stopService(intent);
     }
 
