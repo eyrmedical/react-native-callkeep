@@ -32,8 +32,9 @@ public class EyrCallBannerDisplayService extends Service {
     private Class getMainActivityClass() {
         Class mainActivityClass = null;
         try {
+            String mainApplicationPackageName = this.getApplication().getClass().getPackage().getName();
             // TODO: Do not hard code MainActivity since the app itself can use a different class name
-            String mainActivityClassName = this.getApplication().getClass().getPackage() + ".MainActivity";
+            String mainActivityClassName = mainApplicationPackageName + ".MainActivity";
             mainActivityClass = Class.forName(mainActivityClassName);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -47,7 +48,6 @@ public class EyrCallBannerDisplayService extends Service {
 
         Intent dismissBannerIntent = new Intent(this, this.getClass());
         dismissBannerIntent.setAction(DISMISS_BANNER);
-
 
         Intent acceptCallAndOpenApp = new Intent(this, getMainActivityClass());
         acceptCallAndOpenApp.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
@@ -102,13 +102,10 @@ public class EyrCallBannerDisplayService extends Service {
             ReactNativeHost reactNativeHost = application.getReactNativeHost();
             ReactInstanceManager reactInstanceManager = reactNativeHost.getReactInstanceManager();
             ReactContext reactContext = reactInstanceManager.getCurrentReactContext();
-
-            Log.d("ReactNativeJS", "trying to get react context " + (reactContext == null ? "No :(" : "Yes!"));
             if (reactContext != null) {
                 reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                         .emit("CALL_IS_DECLINED", null);
             }
-//            stopForeground(true);
         }
 
         return START_NOT_STICKY;
