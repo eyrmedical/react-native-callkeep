@@ -20,6 +20,7 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
     public static final String ACTION_PAYLOAD_KEY = "ACTION_PAYLOAD_KEY";
 
     private ReactApplicationContext reactContext;
+    private String mainActivityClassName;
 
     public EyrCallBannerControllerModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -33,13 +34,20 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void configure(@NonNull ReadableMap options) {
+
+    }
+
+    @ReactMethod
     public void startCallBanner(@Nullable ReadableMap callBannerPayload) {
+        Log.d("ReactNativeJS", "starting call banner");
         Intent intent = new Intent(reactContext.getApplicationContext(), EyrCallBannerDisplayService.class);
         // TODO: convert callBannerPayload to native map
         HashMap<String, String> nativeCallBannerPayload = new HashMap<>();
         intent.setAction(START_CALL_BANNER);
         intent.putExtra(ACTION_PAYLOAD_KEY, nativeCallBannerPayload);
         reactContext.getApplicationContext().startService(intent);
+        Log.d("ReactNativeJS", "call banner service started");
     }
 
     @ReactMethod

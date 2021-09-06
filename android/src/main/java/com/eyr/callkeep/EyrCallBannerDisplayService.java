@@ -28,6 +28,19 @@ public class EyrCallBannerDisplayService extends Service {
         return null;
     }
 
+    @Nullable
+    private Class getMainActivityClass() {
+        Class mainActivityClass = null;
+        try {
+            // TODO: Do not hard code MainActivity since the app itself can use a different class name
+            String mainActivityClassName = this.getApplication().getClass().getPackage() + ".MainActivity";
+            mainActivityClass = Class.forName(mainActivityClassName);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return mainActivityClass;
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent.getAction();
@@ -35,23 +48,14 @@ public class EyrCallBannerDisplayService extends Service {
         Intent dismissBannerIntent = new Intent(this, this.getClass());
         dismissBannerIntent.setAction(DISMISS_BANNER);
 
-        Context applicationContext = this.getApplicationContext();
-        // TODO: Do not hard code MainActivity since the app itself can use a different class name
-        String mainActivityClassName = applicationContext.getPackageName() + ".MainActivity";
-        Class mainActivityClass = null;
-        try {
-            mainActivityClass = Class.forName(mainActivityClassName);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
 
-        Intent acceptCallAndOpenApp = new Intent(this, mainActivityClass);
+        Intent acceptCallAndOpenApp = new Intent(this, getMainActivityClass());
         acceptCallAndOpenApp.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         Bundle acceptCallAndOpenAppInitialProps = new Bundle();
         acceptCallAndOpenAppInitialProps.putBoolean("isCallAccepted", true);
         acceptCallAndOpenApp.putExtras(acceptCallAndOpenAppInitialProps);
 
-        Intent openIncomingCallScreen = new Intent(this, mainActivityClass);
+        Intent openIncomingCallScreen = new Intent(this, getMainActivityClass());
         acceptCallAndOpenApp.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         Bundle openIncomingCallScreenInitialProps = new Bundle();
         openIncomingCallScreenInitialProps.putBoolean("isIncomingCall", true);
