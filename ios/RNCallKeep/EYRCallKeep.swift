@@ -337,8 +337,6 @@ extension EYRCallKeep: CXProviderDelegate {
         action.fulfill()
     }
     
-    
-    /*
     public func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {
         
         let dict = [
@@ -350,6 +348,6 @@ extension EYRCallKeep: CXProviderDelegate {
         
         self.configureAudioSession()
     }
-    */
+    
 }
 

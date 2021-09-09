@@ -12,7 +12,6 @@
 @interface RCT_EXTERN_MODULE(EYRCallKeep, RCTEventEmitter)
 RCT_EXTERN_METHOD(setMutedCall:(NSString *)uuidString muted:(BOOL))
 RCT_EXTERN_METHOD(endCall:(NSString*)uuidString)
-RCT_EXTERN_METHOD(answerIncomingCall:(NSString*)uuidString)
 RCT_EXTERN_METHOD(reportEndCall:(NSString*)uuidString reason:(int))
 RCT_EXTERN_METHOD(fulfillAnswerCallAction)
 RCT_EXTERN_METHOD(fulfillEndCallAction)

@@ -42,16 +42,14 @@ class RNCallKeep {
   };
 
   fulfillAnswerCallAction = () => {
-      if (!isIOS) return;
       EYRCallKeepModule.fulfillAnswerCallAction();
   }
     
-  reportEndCallWithUUID = (uuid, reason) => EYRCallKeepModule.reportEndCall(uuid, reason);
+  reportEndCall = (uuid, reason) => EYRCallKeepModule.reportEndCall(uuid, reason);
     
   endCall = (uuid) => EYRCallKeepModule.endCall(uuid);
       
   fulfillEndCallAction = () => {
-     if (!isIOS) return;
      EYRCallKeepModule.fulfillEndCallAction();
   }
     
@@ -60,31 +58,15 @@ class RNCallKeep {
    * On iOS we just notify of an endCall
    */
   rejectCall = (uuid) => {
-    if (!isIOS) {
-      RNCallKeepModule.rejectCall(uuid);
-    } else {
       EYRCallKeepModule.endCall(uuid);
-    }
   };
-
-  isCallActive = async (uuid) => await RNCallKeepModule.isCallActive(uuid);
-
-  getCalls = () => {
-    if (isIOS) {
-      return RNCallKeepModule.getCalls();
-    }
-  };
-
-  fulfillEndCallAction = () => {
-      if (!isIOS) return;
-      RNCallKeepModule.fulfillEndCallAction();
-  }
 
   setMutedCall = (uuid, shouldMute) => {
     EYRCallKeepModule.setMutedCall(uuid, shouldMute);
   };
 
   getInitialEvents() {
+      
     if (isIOS) {
       return EYRCallKeepModule.getInitialEvents()
     }
