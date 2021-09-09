@@ -84,6 +84,7 @@ public class EYRCallKeep: RCTEventEmitter {
             print("[EYRCallKeep][setMutedCall] Cant find uuid")
             return
         }
+        
         let mutedAction = CXSetMutedCallAction(call: uuid, muted: muted)
         let transaction = CXTransaction()
         transaction.addAction(mutedAction)
@@ -212,6 +213,8 @@ public class EYRCallKeep: RCTEventEmitter {
             provider.reportNewIncomingCall(with: uuid,
                                                  update: cxCallUpdate,
                                                  completion: {err in
+                                                    
+                                                    
             })
         } else {
             
@@ -270,8 +273,11 @@ public class EYRCallKeep: RCTEventEmitter {
             // The actual setting will be handled by OpenTok when the video view is open
             // Setting AudioSession.active here might interfere with OpenTok config
             try audioSession.setCategory(.playAndRecord,
-                                         mode: .voiceChat,
-                                         options: [.allowBluetooth, .defaultToSpeaker])
+                                         mode: .default)
+            try audioSession.setActive(true)
+            try audioSession.setMode(AVAudioSession.Mode.voiceChat)
+            try audioSession.setPreferredSampleRate(44100.0)
+            try audioSession.setPreferredIOBufferDuration(0.005)
             
         } catch let error as NSError {
             print("Audio Session error: \(error.localizedDescription)")
@@ -327,21 +333,23 @@ extension EYRCallKeep: CXProviderDelegate {
         // Send event with name wrapper
         self.sendEventWithNameWrapper(EYRCallKeepDidPerformSetMutedCallAction,
                                       body: ["callUUID": action.callUUID.uuidString.lowercased()])
+        
         action.fulfill()
     }
     
+    
+    /*
     public func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {
         
         let dict = [
-            AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended,
-            AVAudioSessionInterruptionOptionKey: AVAudioSession.InterruptionOptions.shouldResume
+            AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended
         ] as [String : Any]
         NotificationCenter.default.post(name: AVAudioSession.interruptionNotification,
                                         object: nil,
                                         userInfo: dict)
         
         self.configureAudioSession()
-        
     }
+    */
 }
 
