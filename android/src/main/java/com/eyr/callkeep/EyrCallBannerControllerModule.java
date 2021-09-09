@@ -20,6 +20,7 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
     public static final String ACTION_PAYLOAD_KEY = "ACTION_PAYLOAD_KEY";
 
     private ReactApplicationContext reactContext;
+    private String mainActivityClassName;
 
     public EyrCallBannerControllerModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -30,6 +31,11 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
     @Override
     public String getName() {
         return "EyrCallBannerControllerModule";
+    }
+
+    @ReactMethod
+    public void configure(@NonNull ReadableMap options) {
+
     }
 
     @ReactMethod
