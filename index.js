@@ -66,11 +66,8 @@ class RNCallKeep {
   };
 
   getInitialEvents() {
-      
-    if (isIOS) {
+
       return EYRCallKeepModule.getInitialEvents()
-    }
-    return Promise.resolve([])
   }
 }
 
