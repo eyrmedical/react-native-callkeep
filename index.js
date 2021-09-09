@@ -114,6 +114,11 @@ class RNCallKeep {
   };
 
 
+  fulfillEndCallAction = () => {
+      if (!isIOS) return;
+      RNCallKeepModule.fulfillEndCallAction();
+  }
+
   endAllCalls = () => RNCallKeepModule.endAllCalls();
 
   hasOutgoingCall = async () => (isIOS ? null : await RNCallKeepModule.hasOutgoingCall());
