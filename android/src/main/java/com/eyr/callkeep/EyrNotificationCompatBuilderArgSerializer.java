@@ -1,0 +1,69 @@
+package com.eyr.callkeep;
+
+import android.app.Notification;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+
+import java.util.HashMap;
+
+public class EyrNotificationCompatBuilderArgSerializer {
+
+  private HashMap<String, Object> mArgs;
+
+  public EyrNotificationCompatBuilderArgSerializer(HashMap<String, Object> args) {
+    mArgs = args;
+  }
+
+  private void maybeAddAutoCancel(NotificationCompat.Builder builder) {
+    @Nullable Boolean autoCancel = (Boolean) mArgs.get("autoCancel");
+    if (autoCancel != null) {
+      builder.setAutoCancel(autoCancel);
+    }
+  }
+
+  private void maybeAddOngoing(NotificationCompat.Builder builder) {
+    @Nullable Boolean ongoing = (Boolean) mArgs.get("ongoing");
+    if (ongoing != null) {
+      builder.setAutoCancel(ongoing);
+    }
+  }
+
+  private void maybeAddPriority(NotificationCompat.Builder builder) {
+    Double priority = (Double) mArgs.get("priority");
+    if (priority != null) {
+      builder.setPriority(priority.intValue());
+    }
+  }
+
+  private void maybeAddVisibility(NotificationCompat.Builder builder) {
+    Double visibility = (Double) mArgs.get("visibility");
+    if (visibility != null) {
+      builder.setPriority(visibility.intValue());
+    }
+  }
+
+  private void maybeAddCategory(NotificationCompat.Builder builder) {
+    String category = (String) mArgs.get("category");
+    if (category != null) {
+      builder.setCategory(category);
+    }
+  }
+
+  public NotificationCompat.Builder createNotificationFromContext(Context context) {
+    @NonNull String notificationChannelId = (String) mArgs.get("channelId");
+    NotificationCompat.Builder builder = new NotificationCompat.Builder(context, notificationChannelId);
+    builder
+      .setSmallIcon(R.mipmap.ic_launcher)
+      .setContentTitle("Test caller")
+      .setContentText("Please pick up the call");
+    maybeAddAutoCancel(builder);
+    maybeAddOngoing(builder);
+    maybeAddPriority(builder);
+    maybeAddCategory(builder);
+    maybeAddVisibility(builder);
+    return builder;
+  }
+}
