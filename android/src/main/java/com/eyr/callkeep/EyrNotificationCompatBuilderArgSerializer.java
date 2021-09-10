@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class EyrNotificationCompatBuilderArgSerializer {
 
@@ -66,6 +67,41 @@ public class EyrNotificationCompatBuilderArgSerializer {
     }
   }
 
+  private void maybeSetSound(Context context, NotificationCompat.Builder builder) {
+    String sound = (String) mArgs.get("sound");
+    if (sound != null) {
+      SoundResolver resolver = new SoundResolver(context);
+      builder.setSound(resolver.resolve(sound));
+    }
+  }
+
+  private void maybeSetVibration(NotificationCompat.Builder builder) {
+    List<?> vibrateJsonArray = (List<?>) mArgs.get("vibration");
+    if (vibrateJsonArray != null) {
+      builder.setVibrate(getVibrationPattern(vibrateJsonArray));
+    }
+  }
+
+  private long[] getVibrationPattern(List<?> vibrateJsonArray) {
+    try {
+      if (vibrateJsonArray != null) {
+        long[] pattern = new long[vibrateJsonArray.size()];
+        for (int i = 0; i < vibrateJsonArray.size(); i++) {
+          if (vibrateJsonArray.get(i) instanceof Number) {
+            pattern[i] = ((Number) vibrateJsonArray.get(i)).longValue();
+          } else {
+            throw new Exception("Invalid vibration array");
+          }
+        }
+        return pattern;
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return null;
+  }
+
   @Nullable
   public static String parseAcceptBtnTitle(HashMap<String, Object> args) {
     return (String) args.get("acceptTitle");
@@ -88,6 +124,8 @@ public class EyrNotificationCompatBuilderArgSerializer {
     maybeAddVisibility(builder);
     maybeAddTitle(builder);
     maybeAddSubtitle(builder);
+    maybeSetSound(context, builder);
+    maybeSetVibration(builder);
     return builder;
   }
 }
