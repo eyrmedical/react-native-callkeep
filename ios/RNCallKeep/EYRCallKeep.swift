@@ -142,8 +142,8 @@ public class EYRCallKeep: RCTEventEmitter {
         resolve(_delayedEvents)
     }
     
-    @objc(reportEndCall:reason:)
-    public func reportEndCall(_ uuidString: String, reason: Int) {
+    @objc(reportEndCallWithUUID:reason:)
+    public func reportEndCallWithUUID(_ uuidString: String, reason: Int) {
         
         guard let uuid = UUID(uuidString: uuidString) else {
             print("[EYRCallKeep][endCall] Cant find uuid")

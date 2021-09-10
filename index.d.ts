@@ -4,7 +4,7 @@ declare module 'react-native-callkeep' {
     'endCall' |
     'didActivateAudioSession' |
     'didPerformSetMutedCallAction' |
-    'didLoadWithEvents' |;
+    'didLoadWithEvents';
 
   type HandleType = 'generic' | 'number' | 'email';
 
@@ -22,28 +22,13 @@ declare module 'react-native-callkeep' {
       maximumCallsPerCallGroup?: string,
       ringtoneSound?: string,
       includesCallsInRecents?: boolean
-    },
-    android: {
-      alertTitle: string,
-      alertDescription: string,
-      cancelButton: string,
-      okButton: string,
-      imageName?: string,
-      additionalPermissions: string[],
-      selfManaged?: boolean,
-      foregroundService?: {
-        channelId: string,
-        channelName: string,
-        notificationTitle: string,
-        notificationIcon?: string
-      }
     }
+   }
   }
 
-  export type DidReceiveStartCallActionPayload = { handle: string };
+
   export type AnswerCallPayload = { callUUID: string };
   export type EndCallPayload = AnswerCallPayload;
-  export type DidDisplayIncomingCallPayload = string | undefined;
   export type DidPerformSetMutedCallActionPayload = boolean;
 
   export const CONSTANTS: {
@@ -67,8 +52,6 @@ declare module 'react-native-callkeep' {
     static fulfillAnswerCallAction(): void
 
     static reportEndCallWithUUID(uuid: string, reason: number): void
-
-    static rejectCall(uuid: string): void
 
     static endCall(uuid: string): void
 

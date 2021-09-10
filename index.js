@@ -25,6 +25,27 @@ class RNCallKeep {
     this._callkeepEventHandlers = new Map();
   }
 
+  setMutedCall = (uuid, shouldMute) => {
+    EYRCallKeepModule.setMutedCall(uuid, shouldMute);
+  };
+  
+  fulfillAnswerCallAction = () => {
+    EYRCallKeepModule.fulfillAnswerCallAction();
+  }
+  
+  endCall = (uuid) => EYRCallKeepModule.endCall(uuid);
+  
+  reportEndCallWithUUID = (uuid, reason) => EYRCallKeepModule.reportEndCallWithUUID(uuid, reason);
+    
+  fulfillEndCallAction = () => {
+     EYRCallKeepModule.fulfillEndCallAction();
+  }
+    
+  getInitialEvents() {
+
+      return EYRCallKeepModule.getInitialEvents()
+  }
+    
   addEventListener = (type, handler) => {
     const listener = listeners[type](handler);
 
@@ -40,37 +61,6 @@ class RNCallKeep {
     listener.remove();
     this._callkeepEventHandlers.delete(type);
   };
-
-  fulfillAnswerCallAction = () => {
-      EYRCallKeepModule.fulfillAnswerCallAction();
-  }
-    
-  reportEndCall = (uuid, reason) => EYRCallKeepModule.reportEndCall(uuid, reason);
-    
-  endCall = (uuid) => EYRCallKeepModule.endCall(uuid);
-      
-  fulfillEndCallAction = () => {
-     EYRCallKeepModule.fulfillEndCallAction();
-  }
-    
-  /*
-   * Android explicitly states we reject a call
-   * On iOS we just notify of an endCall
-   */
-  rejectCall = (uuid) => {
-      EYRCallKeepModule.endCall(uuid);
-  };
-
-  setMutedCall = (uuid, shouldMute) => {
-    EYRCallKeepModule.setMutedCall(uuid, shouldMute);
-  };
-
-  getInitialEvents() {
-
-      return EYRCallKeepModule.getInitialEvents()
-  }
 }
 
 export default new RNCallKeep();
-
-
