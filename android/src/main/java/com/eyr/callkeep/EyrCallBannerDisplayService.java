@@ -76,11 +76,11 @@ public class EyrCallBannerDisplayService extends Service {
         new EyrNotificationCompatBuilderArgSerializer(payload).createNotificationFromContext(this)
           .addAction(new NotificationCompat.Action.Builder(
             R.mipmap.ic_launcher,
-            "Accept",
+            EyrNotificationCompatBuilderArgSerializer.parseAcceptBtnTitle(payload),
             acceptCallPendingIntent).build())
           .addAction(new NotificationCompat.Action.Builder(
             R.mipmap.ic_launcher,
-            "Decline",
+            EyrNotificationCompatBuilderArgSerializer.parseDeclineBtnTitle(payload),
             pendingDismissBannerIntent).build())
           .setContentIntent(openIncomingCallScreenPendingIntent);
 

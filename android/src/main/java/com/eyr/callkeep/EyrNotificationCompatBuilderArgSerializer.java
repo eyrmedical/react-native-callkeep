@@ -52,18 +52,42 @@ public class EyrNotificationCompatBuilderArgSerializer {
     }
   }
 
+  private void maybeAddTitle(NotificationCompat.Builder builder) {
+    String title = (String) mArgs.get("title");
+    if (title != null) {
+      builder.setContentTitle(title);
+    }
+  }
+
+  private void maybeAddSubtitle(NotificationCompat.Builder builder) {
+    String subtitle = (String) mArgs.get("subtitle");
+    if (subtitle != null) {
+      builder.setContentText(subtitle);
+    }
+  }
+
+  @Nullable
+  public static String parseAcceptBtnTitle(HashMap<String, Object> args) {
+    return (String) args.get("acceptTitle");
+  }
+
+  @Nullable
+  public static String parseDeclineBtnTitle(HashMap<String, Object> args) {
+    return (String) args.get("declineTitle");
+  }
+
   public NotificationCompat.Builder createNotificationFromContext(Context context) {
     @NonNull String notificationChannelId = (String) mArgs.get("channelId");
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, notificationChannelId);
     builder
-      .setSmallIcon(R.mipmap.ic_launcher)
-      .setContentTitle("Test caller")
-      .setContentText("Please pick up the call");
+      .setSmallIcon(R.mipmap.ic_launcher);
     maybeAddAutoCancel(builder);
     maybeAddOngoing(builder);
     maybeAddPriority(builder);
     maybeAddCategory(builder);
     maybeAddVisibility(builder);
+    maybeAddTitle(builder);
+    maybeAddSubtitle(builder);
     return builder;
   }
 }
