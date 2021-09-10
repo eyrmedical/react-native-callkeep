@@ -24,6 +24,9 @@ import static com.eyr.callkeep.EyrCallBannerControllerModule.*;
 public class EyrCallBannerDisplayService extends Service {
   public static final int CALL_NOTIFICATION_ID = 23;
 
+  private static final String ACCEPT_CALL = "ACCEPT_CALL";
+  private static final String SHOW_INCOMING_CALL = "SHOW_INCOMING_CALL";
+
   @Nullable
   @Override
   public IBinder onBind(Intent intent) {
@@ -51,24 +54,20 @@ public class EyrCallBannerDisplayService extends Service {
     Intent dismissBannerIntent = new Intent(this, this.getClass());
     dismissBannerIntent.setAction(DISMISS_BANNER);
 
-    Intent acceptCallAndOpenApp = new Intent(this, getMainActivityClass());
-    acceptCallAndOpenApp.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-    Bundle acceptCallAndOpenAppInitialProps = new Bundle();
-    acceptCallAndOpenAppInitialProps.putBoolean("isCallAccepted", true);
-    acceptCallAndOpenApp.putExtras(acceptCallAndOpenAppInitialProps);
+    Intent acceptCallAndOpenApp = new Intent(this, this.getClass());
+    acceptCallAndOpenApp.setAction(ACCEPT_CALL);
 
-    Intent openIncomingCallScreen = new Intent(this, getMainActivityClass());
-    acceptCallAndOpenApp.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-    Bundle openIncomingCallScreenInitialProps = new Bundle();
-    openIncomingCallScreenInitialProps.putBoolean("isIncomingCall", true);
-    acceptCallAndOpenApp.putExtras(openIncomingCallScreenInitialProps);
+    Intent openIncomingCallScreen = new Intent(this, this.getClass());
+    openIncomingCallScreen.setAction(SHOW_INCOMING_CALL);
 
     PendingIntent pendingDismissBannerIntent = PendingIntent.getService(getApplicationContext(), 0,
       dismissBannerIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-    PendingIntent acceptCallPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, acceptCallAndOpenApp, PendingIntent.FLAG_UPDATE_CURRENT);
+    PendingIntent acceptCallPendingIntent = PendingIntent.getService(getApplicationContext(), 0,
+      acceptCallAndOpenApp, PendingIntent.FLAG_UPDATE_CURRENT);
 
-    PendingIntent openIncomingCallScreenPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, openIncomingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT);
+    PendingIntent openIncomingCallScreenPendingIntent = PendingIntent.getService(getApplicationContext(), 0,
+      openIncomingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT);
 
     if (action.equals(START_CALL_BANNER)) {
       HashMap<String, Object> payload = (HashMap<String, Object>) intent.getSerializableExtra(ACTION_PAYLOAD_KEY);
@@ -98,6 +97,26 @@ public class EyrCallBannerDisplayService extends Service {
         reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
           .emit("CALL_IS_DECLINED", null);
       }
+    }
+
+    if (action.equals(ACCEPT_CALL)) {
+      Intent acceptIntent = new Intent(this, getMainActivityClass());
+      acceptIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      Bundle acceptCallAndOpenAppInitialProps = new Bundle();
+      acceptCallAndOpenAppInitialProps.putBoolean("isCallAccepted", true);
+      acceptCallAndOpenApp.putExtras(acceptCallAndOpenAppInitialProps);
+      startActivity(acceptIntent);
+      stopForeground(true);
+    }
+
+    if (action.equals(SHOW_INCOMING_CALL)) {
+      Intent openIncomingCallIntent = new Intent(this, getMainActivityClass());
+      openIncomingCallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      Bundle openIncomingCallScreenInitialProps = new Bundle();
+      openIncomingCallScreenInitialProps.putBoolean("isIncomingCall", true);
+      openIncomingCallIntent.putExtras(openIncomingCallScreenInitialProps);
+      startActivity(openIncomingCallIntent);
+      stopForeground(true);
     }
 
     return START_NOT_STICKY;
