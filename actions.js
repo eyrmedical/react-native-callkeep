@@ -10,7 +10,7 @@ const EYRCallKeepDidLoadWithEvents = 'EYRCallKeepDidLoadWithEvents';
 
 const isIOS = Platform.OS === 'ios';
 
-const answerCall = handler => eventEmitter.addListener(EYRCallKeepPerformAnswerCallAction ,handler);
+const answerCall = handler => eventEmitter.addListener(EYRCallKeepPerformAnswerCallAction, handler);
 
 const endCall = handler => eventEmitter.addListener(EYRCallKeepPerformEndCallAction, handler);
 
