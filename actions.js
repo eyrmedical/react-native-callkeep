@@ -10,13 +10,21 @@ const EYRCallKeepDidLoadWithEvents = 'EYRCallKeepDidLoadWithEvents';
 
 const isIOS = Platform.OS === 'ios';
 
-const answerCall = handler => eventEmitter.addListener(EYRCallKeepPerformAnswerCallAction, (data) => handler(data));
+const answerCall = handler => eventEmitter.addListener(EYRCallKeepPerformAnswerCallAction, function (data) {
+  return handler(data);
+});
 
-const endCall = handler => eventEmitter.addListener(EYRCallKeepPerformEndCallAction, (data) => handler(data));
+const endCall = handler => eventEmitter.addListener(EYRCallKeepPerformEndCallAction, function (data) {
+  return handler(data);
+});
 
-const didPerformSetMutedCallAction = handler => eventEmitter.addListener(EYRCallKeepDidPerformSetMutedCallAction, (data) => handler(data));
+const didPerformSetMutedCallAction = handler => eventEmitter.addListener(EYRCallKeepDidPerformSetMutedCallAction, function (data) {
+  return handler(data);
+});
 
-const didLoadWithEvents = handler => eventEmitter.addListener(EYRCallKeepDidLoadWithEvents, (data) => handler(data));
+const didLoadWithEvents = handler => eventEmitter.addListener(EYRCallKeepDidLoadWithEvents, function (data) {
+  return handler(data);
+});
 
 export const emit = (eventName, payload) => eventEmitter.emit(eventName, payload);
 
