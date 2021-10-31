@@ -238,6 +238,12 @@ public class EYRCallKeep: RCTEventEmitter {
             config.ringtoneSound = ringtoneSound
         }
         
+        if let imgName = settings["imageName"] as? String,
+           let img = UIImage(named: imgName),
+           let data = img.pngData() {
+            config.iconTemplateImageData = data
+        }
+        
         config.supportsVideo = true
         config.maximumCallGroups = 1
         config.maximumCallsPerCallGroup = 1
@@ -338,16 +344,9 @@ extension EYRCallKeep: CXProviderDelegate {
     }
     
     public func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {
-        
-        let dict = [
-            AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended
-        ] as [String : Any]
-        NotificationCenter.default.post(name: AVAudioSession.interruptionNotification,
-                                        object: nil,
-                                        userInfo: dict)
-        
+     
         self.configureAudioSession()
+         
     }
-    
 }
 
