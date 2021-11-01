@@ -9,6 +9,8 @@ let EYRCallKeepDidPerformSetMutedCallAction = "EYRCallKeepDidPerformSetMutedCall
 
 @objc(EYRCallKeep)
 public class EYRCallKeep: RCTEventEmitter {
+    // Cast objc block to swift block
+    typealias ClosureType = @convention(block) () -> Void
     
     @objc static var options: [String: Any]?
     
@@ -191,7 +193,9 @@ public class EYRCallKeep: RCTEventEmitter {
     @objc public func reportIncomingCall(noti: Notification) {
         
         let userInfo = noti.userInfo!
+        let object = noti.object
         let uuidString = userInfo["uuidString"] as! String
+        
         guard let uuid = UUID(uuidString: uuidString) else {
             
             print("[EYRCallKeep][reportIncomingCall] Error: Cant create uuid from string")
@@ -213,8 +217,18 @@ public class EYRCallKeep: RCTEventEmitter {
             provider.reportNewIncomingCall(with: uuid,
                                                  update: cxCallUpdate,
                                                  completion: {err in
-                                                    
-                                                    
+                if let err = err {
+                    print("[EYRCallKeep][reportIncomingCall] Error report incoming call: \(err.localizedDescription) ")
+                } else {
+                
+                    // Call completion block
+                    if let obj = object as AnyObject? {
+                        let block : () -> Void = unsafeBitCast(obj, to: ClosureType.self)
+                        block()
+                    }
+                    
+                }
+                
             })
         } else {
             
@@ -237,11 +251,11 @@ public class EYRCallKeep: RCTEventEmitter {
         if let ringtoneSound = settings["ringtoneSound"] as? String {
             config.ringtoneSound = ringtoneSound
         }
-        
+
         if let imgName = settings["imageName"] as? String,
            let img = UIImage(named: imgName),
            let data = img.pngData() {
-            config.iconTemplateImageData = data
+                config.iconTemplateImageData = data
         }
         
         config.supportsVideo = true
@@ -250,6 +264,10 @@ public class EYRCallKeep: RCTEventEmitter {
         config.supportedHandleTypes = [.generic]
         
         return config
+    }
+    
+    public override class func requiresMainQueueSetup() -> Bool {
+        return true
     }
     
     // MARK: - Private func
@@ -338,15 +356,15 @@ extension EYRCallKeep: CXProviderDelegate {
         
         // Send event with name wrapper
         self.sendEventWithNameWrapper(EYRCallKeepDidPerformSetMutedCallAction,
-                                      body: ["callUUID": action.callUUID.uuidString.lowercased()])
+                                      body: ["muted" : action.isMuted,
+                                             "callUUID": action.callUUID.uuidString.lowercased()])
         
         action.fulfill()
     }
     
     public func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {
-     
+        
         self.configureAudioSession()
-         
     }
 }
 
