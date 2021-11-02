@@ -23,6 +23,7 @@ public class EYRCallKeep: RCTEventEmitter {
     
     fileprivate var _answerCallAction: CXAnswerCallAction?
     fileprivate var _endCallAction: CXEndCallAction?
+    fileprivate var _isRemoteEnded: Bool = false
     
     private let _settingsKey = "EYRCallKeepSettings"
     
@@ -102,6 +103,15 @@ public class EYRCallKeep: RCTEventEmitter {
             print("[EYRCallKeep][endCall] Cant find uuid")
             return
         }
+        
+        // Check if call is ended remotely
+        // If true, no need to execute transaction
+        if _isRemoteEnded {
+            
+            _isRemoteEnded = false
+            return
+        }
+        
         let endCallAction = CXEndCallAction(call: uuid)
         let transaction = CXTransaction()
         transaction.addAction(endCallAction)
@@ -158,6 +168,7 @@ public class EYRCallKeep: RCTEventEmitter {
             break
         case 2, 6:
             self.callKeepProvider?.reportCall(with: uuid, endedAt: Date(), reason: .remoteEnded)
+            _isRemoteEnded = true
             break
         case 3:
             self.callKeepProvider?.reportCall(with: uuid, endedAt: Date(), reason: .unanswered)
@@ -271,7 +282,6 @@ public class EYRCallKeep: RCTEventEmitter {
     }
     
     // MARK: - Private func
-
     fileprivate func requestTransaction(_ transaction: CXTransaction) {
         
         self.cxCallController.request(transaction, completion: { err in
@@ -367,4 +377,3 @@ extension EYRCallKeep: CXProviderDelegate {
         self.configureAudioSession()
     }
 }
-
