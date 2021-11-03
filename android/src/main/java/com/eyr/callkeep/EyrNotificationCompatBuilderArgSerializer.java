@@ -1,7 +1,10 @@
 package com.eyr.callkeep;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -115,8 +118,7 @@ public class EyrNotificationCompatBuilderArgSerializer {
   public NotificationCompat.Builder createNotificationFromContext(Context context) {
     @NonNull String notificationChannelId = (String) mArgs.get("channelId");
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, notificationChannelId);
-    builder
-      .setSmallIcon(R.mipmap.ic_launcher);
+    builder.setSmallIcon(R.mipmap.ic_launcher);
     maybeAddAutoCancel(builder);
     maybeAddOngoing(builder);
     maybeAddPriority(builder);
