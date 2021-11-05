@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.Settings;
@@ -59,20 +60,6 @@ public class EyrCallBannerDisplayService extends Service {
     return mainActivityClass;
   }
 
-  @Nullable
-  private Class getIncomingCallActivityClass() {
-    Class mainActivityClass = null;
-    try {
-      String mainApplicationPackageName = this.getApplication().getClass().getPackage().getName();
-      // TODO: Do not hard code MainActivity since the app itself can use a different class name
-      String mainActivityClassName = mainApplicationPackageName + ".IncomingCallActivity";
-      mainActivityClass = Class.forName(mainActivityClassName);
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-    }
-    return mainActivityClass;
-  }
-
   @Override
   public boolean onUnbind(Intent intent) {
     if (v!= null) {
@@ -92,6 +79,20 @@ public class EyrCallBannerDisplayService extends Service {
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
 
+    HashMap<String, Object> payload = (HashMap<String, Object>) intent.getSerializableExtra(ACTION_PAYLOAD_KEY);
+
+    PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
+    boolean isScreenOn = pm.isInteractive(); // check if screen is on
+
+    if (!isScreenOn) {
+      PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "myApp:notificationLock");
+      wl.acquire(3000);//set your time in milliseconds
+      Bundle openIncomingCallScreenInitialProps = new Bundle();
+
+      Intent openIncomingCallIntent = new Intent(getApplicationContext(), getMainActivityClass());
+      startActivity(openIncomingCallIntent, openIncomingCallScreenInitialProps);
+      return START_NOT_STICKY;
+    }
     String action = intent.getAction();
 
     Intent dismissBannerIntent = new Intent(this, getClass());
@@ -100,8 +101,9 @@ public class EyrCallBannerDisplayService extends Service {
     Intent acceptCallAndOpenApp = new Intent(this, getClass());
     acceptCallAndOpenApp.setAction(ACCEPT_CALL);
 
-    Intent openIncomingCallScreen = new Intent(this, getIncomingCallActivityClass());
+    Intent openIncomingCallScreen = new Intent(this, getMainActivityClass());
     openIncomingCallScreen.setAction(SHOW_INCOMING_CALL);
+    openIncomingCallScreen.putExtras(intent);
 
     PendingIntent pendingDismissBannerIntent = PendingIntent.getService(getApplicationContext(), 0,
       dismissBannerIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -111,7 +113,7 @@ public class EyrCallBannerDisplayService extends Service {
 
     PendingIntent openIncomingCallScreenPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
       openIncomingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT);
-    HashMap<String, Object> payload = (HashMap<String, Object>) intent.getSerializableExtra(ACTION_PAYLOAD_KEY);
+
     if (action.equals(START_CALL_BANNER)) {
 
       NotificationCompat.Builder notificationBuilder =
