@@ -1,5 +1,7 @@
 package com.eyr.callkeep;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -27,12 +29,17 @@ import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import static com.eyr.callkeep.EyrCallBannerControllerModule.*;
 
+@SuppressWarnings("rawtypes")
 public class EyrCallBannerDisplayService extends Service {
   public static final int CALL_NOTIFICATION_ID = 23;
 
@@ -50,8 +57,7 @@ public class EyrCallBannerDisplayService extends Service {
   private Class getMainActivityClass() {
     Class mainActivityClass = null;
     try {
-      String mainApplicationPackageName = this.getApplication().getClass().getPackage().getName();
-      // TODO: Do not hard code MainActivity since the app itself can use a different class name
+      String mainApplicationPackageName = Objects.requireNonNull(this.getApplication().getClass().getPackage()).getName();
       String mainActivityClassName = mainApplicationPackageName + ".MainActivity";
       mainActivityClass = Class.forName(mainActivityClassName);
     } catch (ClassNotFoundException e) {
@@ -81,18 +87,6 @@ public class EyrCallBannerDisplayService extends Service {
 
     HashMap<String, Object> payload = (HashMap<String, Object>) intent.getSerializableExtra(ACTION_PAYLOAD_KEY);
 
-    PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
-    boolean isScreenOn = pm.isInteractive(); // check if screen is on
-
-    if (!isScreenOn) {
-      PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "myApp:notificationLock");
-      wl.acquire(3000);//set your time in milliseconds
-      Bundle openIncomingCallScreenInitialProps = new Bundle();
-
-      Intent openIncomingCallIntent = new Intent(getApplicationContext(), getMainActivityClass());
-      startActivity(openIncomingCallIntent, openIncomingCallScreenInitialProps);
-      return START_NOT_STICKY;
-    }
     String action = intent.getAction();
 
     Intent dismissBannerIntent = new Intent(this, getClass());
@@ -101,9 +95,17 @@ public class EyrCallBannerDisplayService extends Service {
     Intent acceptCallAndOpenApp = new Intent(this, getClass());
     acceptCallAndOpenApp.setAction(ACCEPT_CALL);
 
+
     Intent openIncomingCallScreen = new Intent(this, getMainActivityClass());
     openIncomingCallScreen.setAction(SHOW_INCOMING_CALL);
-    openIncomingCallScreen.putExtras(intent);
+    Bundle bundle = new Bundle();
+    if (payload!=null) {
+      for (Map.Entry<String, Object> entry : payload.entrySet()) {
+        bundle.putString(entry.getKey(), entry.getValue().toString());
+      }
+      openIncomingCallScreen.putExtras(bundle);
+      acceptCallAndOpenApp.putExtras(bundle);
+    }
 
     PendingIntent pendingDismissBannerIntent = PendingIntent.getService(getApplicationContext(), 0,
       dismissBannerIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -115,7 +117,7 @@ public class EyrCallBannerDisplayService extends Service {
       openIncomingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT);
 
     if (action.equals(START_CALL_BANNER)) {
-
+      bundle.putBoolean("isIncomingCall", true);
       NotificationCompat.Builder notificationBuilder =
         new EyrNotificationCompatBuilderArgSerializer(payload).createNotificationFromContext(this)
           .addAction(new NotificationCompat.Action.Builder(
@@ -155,35 +157,47 @@ public class EyrCallBannerDisplayService extends Service {
         reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
           .emit("CALL_IS_DECLINED", null);
       }
+      v.cancel();
+      stopForeground(true);
     }
 
     if (action.equals(ACCEPT_CALL)) {
       /**/
+      Intent acceptIntent = new Intent(this, getMainActivityClass());
+      acceptIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      Bundle acceptCallAndOpenAppInitialProps = intent.getExtras();
+      if (acceptCallAndOpenAppInitialProps == null) {
+        acceptCallAndOpenAppInitialProps = bundle;
+      }
+      acceptCallAndOpenAppInitialProps.putBoolean("isCallAccepted", true);
+      acceptCallAndOpenApp.putExtras(acceptCallAndOpenAppInitialProps);
+      startActivity(acceptIntent, acceptCallAndOpenAppInitialProps);
       ReactApplication application = (ReactApplication) this.getApplication();
       ReactNativeHost reactNativeHost = application.getReactNativeHost();
       ReactInstanceManager reactInstanceManager = reactNativeHost.getReactInstanceManager();
       ReactContext reactContext = reactInstanceManager.getCurrentReactContext();
+
       if (reactContext != null) {
+        WritableMap newPayload = new WritableNativeMap();
+        for (String key : bundle.keySet()) {
+          newPayload.putString(key, bundle.get(key).toString()); //To Implement
+        }
+        newPayload.putBoolean("isCallAccepted", true);
         reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-          .emit("ACCEPT_CALL_EVENT", payload);
+          .emit("ACCEPT_CALL_EVENT", newPayload);
       }
-      Intent acceptIntent = new Intent(this, getMainActivityClass());
-      acceptIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      Bundle acceptCallAndOpenAppInitialProps = new Bundle();
-      acceptCallAndOpenAppInitialProps.putBoolean("isCallAccepted", true);
-      acceptCallAndOpenApp.putExtras(acceptCallAndOpenAppInitialProps);
-      startActivity(acceptIntent, acceptCallAndOpenAppInitialProps);
       v.cancel();
       stopForeground(true);
     }
 
     if (action.equals(SHOW_INCOMING_CALL)) {
       Intent openIncomingCallIntent = new Intent(this, getMainActivityClass());
-      openIncomingCallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      Bundle openIncomingCallScreenInitialProps = new Bundle();
+      openIncomingCallIntent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+      Bundle openIncomingCallScreenInitialProps = intent.getExtras();
       openIncomingCallScreenInitialProps.putBoolean("isIncomingCall", true);
       openIncomingCallIntent.putExtras(openIncomingCallScreenInitialProps);
       startActivity(openIncomingCallIntent);
+      v.cancel();
       stopForeground(true);
     }
 
