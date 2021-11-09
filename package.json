@@ -1,27 +1,29 @@
 {
   "name": "react-native-callkeep",
-  "version": "4.2.0",
-  "description": "iOS 10 CallKit and Android ConnectionService Framework For React Native",
+  "version": "5.0.0",
+  "description": "React Native library that provides native bindings for receiving incoming calls",
   "main": "index.js",
-  "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/react-native-webrtc/react-native-callkeep.git"
+    "url": "git+https://github.com/eyrmedical/react-native-callkeep.git"
   },
   "author": "See AUTHORS file",
-  "maintainers": ["See AUTHORS file"],
-  "contributors": ["See AUTHORS file"],
+  "maintainers": [
+    "See AUTHORS file"
+  ],
+  "contributors": [
+    "See AUTHORS file"
+  ],
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/react-native-webrtc/react-native-callkeep/issues"
+    "url": "https://github.com/eyrmedical/react-native-callkeep/issues"
   },
-  "homepage": "https://github.com/react-native-webrtc/react-native-callkeep#readme",
+  "homepage": "https://github.com/eyrmedical/react-native-callkeep#readme",
   "typings": "./index.d.ts",
   "peerDependencies": {
-    "react-native": ">=0.40.0"
+    "react-native": ">=0.60.0"
   },
   "devDependencies": {
-    "react-native": ">=0.40.0"
-  },
-  "dependencies": {}
+    "react-native": ">=0.60.0"
+  }
 }
