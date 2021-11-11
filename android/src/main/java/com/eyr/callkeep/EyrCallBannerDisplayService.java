@@ -97,7 +97,7 @@ public class EyrCallBannerDisplayService extends Service {
           .setVibrate(null)
           .setOngoing(true);
 
-      if (Utils.isDeviceScreenLocked(getApplicationContext())) {
+      if (!Utils.isDeviceScreenLocked(getApplicationContext())) {
         openIncomingCallScreen.addFlags(FLAG_ACTIVITY_NEW_TASK);
         startActivity(openIncomingCallScreen);
       } else {
