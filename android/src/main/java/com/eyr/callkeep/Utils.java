@@ -1,5 +1,7 @@
 package com.eyr.callkeep;
 
+import static com.eyr.callkeep.EyrCallBannerControllerModule.NOTIFICATION_EXTRA_PAYLOAD;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.KeyguardManager;
@@ -118,7 +120,7 @@ public class Utils {
     ReactNativeHost reactNativeHost = application.getReactNativeHost();
     ReactInstanceManager reactInstanceManager = reactNativeHost.getReactInstanceManager();
     ReactContext reactContext = reactInstanceManager.getCurrentReactContext();
-    if (reactContext != null) {
+      if (reactContext != null) {
       reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
         .emit(event, payload);
     }
@@ -128,11 +130,8 @@ public class Utils {
     if (payload==null) return null;
     WritableMap jsMap = new WritableNativeMap();
     for (HashMap.Entry<String, Object> entry : payload.entrySet()) {
-      if (!entry.getKey().equals("acceptTitle")
-        && !entry.getKey().equals("subtitle")
-        && !entry.getKey().equals("title")
-        && !entry.getKey().equals("declineTitle")) {
-        jsMap.putString(entry.getKey(), String.valueOf(entry.getValue()));
+      if (entry.getKey().equals(NOTIFICATION_EXTRA_PAYLOAD)) {
+        jsMap = (WritableMap) entry.getValue();
       }
     }
     return jsMap;

@@ -67,6 +67,12 @@ public class EyrNotificationCompatBuilderArgSerializer {
     }
   }
 
+  private void maybeSetSound(Context context, NotificationCompat.Builder builder) {
+    String sound = (String) mArgs.get("sound");
+    if (sound != null) {
+    }
+  }
+
   private void maybeSetVibration(NotificationCompat.Builder builder) {
     List<?> vibrateJsonArray = (List<?>) mArgs.get("vibration");
     if (vibrateJsonArray != null) {
@@ -116,6 +122,7 @@ public class EyrNotificationCompatBuilderArgSerializer {
     maybeAddVisibility(builder);
     maybeAddTitle(builder);
     maybeAddSubtitle(builder);
+    maybeSetSound(context, builder);
     maybeSetVibration(builder);
     return builder;
   }

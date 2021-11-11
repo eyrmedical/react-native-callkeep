@@ -103,7 +103,7 @@ public class EyrCallBannerDisplayService extends Service {
       } else {
         startForeground(CALL_NOTIFICATION_ID, notificationBuilder.build());
       }
-
+      callPlayer.play(getApplicationContext());
     }
 
     if (action.equals(DISMISS_BANNER)) {
@@ -119,6 +119,7 @@ public class EyrCallBannerDisplayService extends Service {
       startActivity(acceptIntent);
 
       reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsPayload(payload));
+      callPlayer.stop();
       stopForeground(true);
     }
 
@@ -130,6 +131,7 @@ public class EyrCallBannerDisplayService extends Service {
       openIncomingCallIntent.putExtras(openIncomingCallScreenInitialProps);
       startActivity(openIncomingCallIntent);
       stopForeground(true);
+      callPlayer.stop();
     }
 
     return START_NOT_STICKY;
