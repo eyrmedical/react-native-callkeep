@@ -1,8 +1,7 @@
 package com.eyr.callkeep;
 
 import android.content.Context;
-import android.media.AudioAttributes;
-import android.media.MediaPlayer;
+import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Handler;
@@ -12,7 +11,7 @@ import android.os.Vibrator;
 public class CallPlayer {
 
 
-  private MediaPlayer mMediaPlayer = null;
+  private Ringtone defaultRingtone = null;
   private Vibrator vibrator = null;
   private final long[] pattern = { 0L, 1000L, 800L};
   private boolean isPlaying = false;
@@ -46,19 +45,13 @@ public class CallPlayer {
   }
 
   private void playMusic(Context context) {
-    Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-    AudioAttributes attribution = new AudioAttributes.Builder()
-      .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-      .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-      .build();
-    mMediaPlayer = MediaPlayer.create(context, uri);
-    mMediaPlayer.setLooping(true);
-    mMediaPlayer.setAudioAttributes(attribution);
-    mMediaPlayer.start();
+    Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE);
+    defaultRingtone = RingtoneManager.getRingtone(context, defaultRingtoneUri);
+    defaultRingtone.play();
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
-        if (mMediaPlayer!=null && mMediaPlayer.isPlaying()) {
+        if (defaultRingtone!=null && defaultRingtone.isPlaying()) {
           stop();
         }
       }
@@ -66,9 +59,8 @@ public class CallPlayer {
   }
 
   private void stopMusic() {
-    if (mMediaPlayer!=null && mMediaPlayer.isPlaying()) {
-      mMediaPlayer.stop();
-      mMediaPlayer.seekTo(0);
+    if (defaultRingtone!=null && defaultRingtone.isPlaying()) {
+      defaultRingtone.stop();
     }
   }
 

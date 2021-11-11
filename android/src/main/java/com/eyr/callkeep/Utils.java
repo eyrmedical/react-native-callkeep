@@ -23,6 +23,7 @@ import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Utils {
 
@@ -131,7 +132,10 @@ public class Utils {
     WritableMap jsMap = new WritableNativeMap();
     for (HashMap.Entry<String, Object> entry : payload.entrySet()) {
       if (entry.getKey().equals(NOTIFICATION_EXTRA_PAYLOAD)) {
-        jsMap = (WritableMap) entry.getValue();
+        HashMap<String, Object> miniPayload = (HashMap<String, Object>) entry.getValue();
+        for (Map.Entry<String, Object> in : miniPayload.entrySet()) {
+          jsMap.putString(in.getKey(), String.valueOf(in.getValue()));
+        }
       }
     }
     return jsMap;
