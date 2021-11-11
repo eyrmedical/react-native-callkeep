@@ -1,10 +1,7 @@
 package com.eyr.callkeep;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -70,14 +67,6 @@ public class EyrNotificationCompatBuilderArgSerializer {
     }
   }
 
-  private void maybeSetSound(Context context, NotificationCompat.Builder builder) {
-    String sound = (String) mArgs.get("sound");
-    if (sound != null) {
-      SoundResolver resolver = new SoundResolver(context);
-      builder.setSound(resolver.resolve(sound));
-    }
-  }
-
   private void maybeSetVibration(NotificationCompat.Builder builder) {
     List<?> vibrateJsonArray = (List<?>) mArgs.get("vibration");
     if (vibrateJsonArray != null) {
@@ -118,7 +107,8 @@ public class EyrNotificationCompatBuilderArgSerializer {
   public NotificationCompat.Builder createNotificationFromContext(Context context) {
     @NonNull String notificationChannelId = (String) mArgs.get("channelId");
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, notificationChannelId);
-    builder.setSmallIcon(R.mipmap.ic_launcher);
+    builder
+      .setSmallIcon(R.mipmap.ic_launcher);
     maybeAddAutoCancel(builder);
     maybeAddOngoing(builder);
     maybeAddPriority(builder);
@@ -126,7 +116,6 @@ public class EyrNotificationCompatBuilderArgSerializer {
     maybeAddVisibility(builder);
     maybeAddTitle(builder);
     maybeAddSubtitle(builder);
-    maybeSetSound(context, builder);
     maybeSetVibration(builder);
     return builder;
   }
