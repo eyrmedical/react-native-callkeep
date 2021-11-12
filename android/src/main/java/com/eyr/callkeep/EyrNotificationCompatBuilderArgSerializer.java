@@ -114,7 +114,7 @@ public class EyrNotificationCompatBuilderArgSerializer {
     @NonNull String notificationChannelId = (String) mArgs.get("channelId");
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, notificationChannelId);
     builder
-      .setSmallIcon(R.mipmap.ic_launcher);
+      .setSmallIcon(R.drawable.ic_notification);
     maybeAddAutoCancel(builder);
     maybeAddOngoing(builder);
     maybeAddPriority(builder);

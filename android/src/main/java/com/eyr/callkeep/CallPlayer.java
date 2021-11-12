@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -48,6 +49,9 @@ public class CallPlayer {
     Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE);
     defaultRingtone = RingtoneManager.getRingtone(context, defaultRingtoneUri);
     defaultRingtone.play();
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      defaultRingtone.setLooping(true);
+    }
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {

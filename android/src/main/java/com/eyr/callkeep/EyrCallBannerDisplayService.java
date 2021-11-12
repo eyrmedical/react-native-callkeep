@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -80,27 +81,25 @@ public class EyrCallBannerDisplayService extends Service {
       openIncomingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT);
     HashMap<String, Object> payload = (HashMap<String, Object>) intent.getSerializableExtra(ACTION_PAYLOAD_KEY);
     if (action.equals(START_CALL_BANNER)) {
-
-      NotificationCompat.Builder notificationBuilder =
-        new EyrNotificationCompatBuilderArgSerializer(payload).createNotificationFromContext(this)
-          .addAction(new NotificationCompat.Action.Builder(
-            R.drawable.ic_notification,
-            EyrNotificationCompatBuilderArgSerializer.parseAcceptBtnTitle(payload),
-            acceptCallPendingIntent).build())
-          .addAction(new NotificationCompat.Action.Builder(
-            R.drawable.ic_notification,
-            EyrNotificationCompatBuilderArgSerializer.parseDeclineBtnTitle(payload),
-            pendingDismissBannerIntent).build())
-          .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
-          .setFullScreenIntent(openIncomingCallScreenPendingIntent, true)
-          .setPriority(NotificationCompat.PRIORITY_HIGH)
-          .setVibrate(null)
-          .setOngoing(true);
-
       if (!Utils.isDeviceScreenLocked(getApplicationContext())) {
         openIncomingCallScreen.addFlags(FLAG_ACTIVITY_NEW_TASK);
         startActivity(openIncomingCallScreen);
       } else {
+        NotificationCompat.Builder notificationBuilder =
+          new EyrNotificationCompatBuilderArgSerializer(payload).createNotificationFromContext(this)
+            .addAction(new NotificationCompat.Action.Builder(
+              R.drawable.ic_notification,
+              EyrNotificationCompatBuilderArgSerializer.parseAcceptBtnTitle(payload),
+              acceptCallPendingIntent).build())
+            .addAction(new NotificationCompat.Action.Builder(
+              R.drawable.ic_notification,
+              EyrNotificationCompatBuilderArgSerializer.parseDeclineBtnTitle(payload),
+              pendingDismissBannerIntent).build())
+            .setDefaults(Notification.DEFAULT_LIGHTS)
+            .setFullScreenIntent(openIncomingCallScreenPendingIntent, true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVibrate(null)
+            .setOngoing(true);
         startForeground(CALL_NOTIFICATION_ID, notificationBuilder.build());
       }
       callPlayer.play(getApplicationContext());
@@ -113,25 +112,11 @@ public class EyrCallBannerDisplayService extends Service {
     if (action.equals(ACCEPT_CALL)) {
       Intent acceptIntent = new Intent(this, getMainActivity(getApplicationContext()));
       acceptIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      Bundle acceptCallAndOpenAppInitialProps = new Bundle();
-      acceptCallAndOpenAppInitialProps.putBoolean("isCallAccepted", true);
-      acceptCallAndOpenApp.putExtras(acceptCallAndOpenAppInitialProps);
       startActivity(acceptIntent);
 
       reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsPayload(payload));
       callPlayer.stop();
       stopForeground(true);
-    }
-
-    if (action.equals(SHOW_INCOMING_CALL)) {
-      Intent openIncomingCallIntent = new Intent(this, getMainActivity(getApplicationContext()));
-      openIncomingCallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      Bundle openIncomingCallScreenInitialProps = new Bundle();
-      openIncomingCallScreenInitialProps.putBoolean("isIncomingCall", true);
-      openIncomingCallIntent.putExtras(openIncomingCallScreenInitialProps);
-      startActivity(openIncomingCallIntent);
-      stopForeground(true);
-      callPlayer.stop();
     }
 
     return START_NOT_STICKY;

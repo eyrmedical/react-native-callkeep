@@ -27,6 +27,7 @@ public class IncomingCallActivity extends AppCompatActivity {
   private final View.OnClickListener onAccept = new View.OnClickListener() {
     @Override
     public void onClick(View v) {
+      Utils.backToForeground(getApplicationContext());
       reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsPayload(payload));
       finish();
     }
@@ -60,7 +61,7 @@ public class IncomingCallActivity extends AppCompatActivity {
     btnAccept.setOnClickListener(onAccept);
     btnDecline.setOnClickListener(onDecline);
     if (payload==null) return;
-    tvName.setText(String.valueOf(payload.get("callerName")));
+    tvName.setText(String.valueOf(payload.get("title")));
     tvDetail.setText(String.valueOf(payload.get("subtitle")));
     tvAccept.setText(String.valueOf(payload.get("acceptTitle")));
     tvDecline.setText(String.valueOf(payload.get("declineTitle")));
@@ -74,18 +75,16 @@ public class IncomingCallActivity extends AppCompatActivity {
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
       getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    } else {
-      getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-        | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-    }
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
       setTurnScreenOn(true);
       setShowWhenLocked(true);
 
       KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
       keyguardManager.requestDismissKeyguard(this, null);
+    } else {
+      getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+        | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
     }
   }
 

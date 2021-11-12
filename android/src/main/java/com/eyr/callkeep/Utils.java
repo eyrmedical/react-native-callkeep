@@ -70,7 +70,7 @@ public class Utils {
   /**
    * Back main activity to foreground.
    */
-  public static void backToForeground(Context applicationContext, Activity activity) {
+  public static void backToForeground(Context applicationContext) {
         /*
         val mainActivityIntent = Intent(context, getMainActivityClass(context)).apply {
             addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -82,13 +82,8 @@ public class Utils {
     Intent focusIntent = applicationContext.getPackageManager().getLaunchIntentForPackage(packageName).cloneFilter();
 
     focusIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-
-    if (activity != null) {
-      activity.startActivity(focusIntent);
-    } else {
-      focusIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      applicationContext.startActivity(focusIntent);
-    }
+    focusIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    applicationContext.startActivity(focusIntent);
 
   }
 
