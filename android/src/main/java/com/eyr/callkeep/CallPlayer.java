@@ -1,6 +1,7 @@
 package com.eyr.callkeep;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -8,6 +9,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.Log;
 
 public class CallPlayer {
 
@@ -26,7 +28,7 @@ public class CallPlayer {
     if (vibrator == null) {
       vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
     }
-    playVibrate();
+    playVibrate(context);
     playMusic(context);
     isPlaying = true;
   }
@@ -46,8 +48,15 @@ public class CallPlayer {
   }
 
   private void playMusic(Context context) {
+    AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
+      return;
+    }
     Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE);
     defaultRingtone = RingtoneManager.getRingtone(context, defaultRingtoneUri);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      defaultRingtone.setVolume(audioManager.getStreamVolume(AudioManager.STREAM_RING));
+    }
     defaultRingtone.play();
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
       defaultRingtone.setLooping(true);
@@ -68,12 +77,17 @@ public class CallPlayer {
     }
   }
 
-  private void playVibrate() {
+  private void playVibrate(Context context) {
     if(vibrator==null || !vibrator.hasVibrator()) {
       return;
     }
 
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+    AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
+      return;
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
     } else {
       vibrator.vibrate(pattern, 0);
