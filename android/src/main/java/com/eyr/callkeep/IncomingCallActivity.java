@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -28,8 +29,18 @@ public class IncomingCallActivity extends AppCompatActivity {
     @Override
     public void onClick(View v) {
       Utils.backToForeground(getApplicationContext());
-      reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsPayload(payload));
-      finish();
+      new CountDownTimer(1250, 1000) {
+
+        public void onTick(long millisUntilFinished) {
+          //here you can have your logic to set text to edittext
+        }
+
+        public void onFinish() {
+          reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsPayload(payload));
+          finish();
+        }
+
+      }.start();
     }
   };
 

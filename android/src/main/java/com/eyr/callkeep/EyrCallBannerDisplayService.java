@@ -9,8 +9,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -79,7 +81,7 @@ public class EyrCallBannerDisplayService extends Service {
 
     PendingIntent openIncomingCallScreenPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
       openIncomingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT);
-    HashMap<String, Object> payload = (HashMap<String, Object>) intent.getSerializableExtra(ACTION_PAYLOAD_KEY);
+    final HashMap<String, Object> payload = (HashMap<String, Object>) intent.getSerializableExtra(ACTION_PAYLOAD_KEY);
     if (action.equals(START_CALL_BANNER)) {
       if (!Utils.isDeviceScreenLocked(getApplicationContext())) {
         openIncomingCallScreen.addFlags(FLAG_ACTIVITY_NEW_TASK);
@@ -110,13 +112,21 @@ public class EyrCallBannerDisplayService extends Service {
     }
 
     if (action.equals(ACCEPT_CALL)) {
-      Intent acceptIntent = new Intent(this, getMainActivity(getApplicationContext()));
-      acceptIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      startActivity(acceptIntent);
+      Utils.backToForeground(getApplicationContext());
+      new CountDownTimer(1250, 1000) {
 
-      reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsPayload(payload));
+        public void onTick(long millisUntilFinished) {
+          //here you can have your logic to set text to edittext
+        }
+
+        public void onFinish() {
+          reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsPayload(payload));
+          stopForeground(true);
+        }
+
+      }.start();
       callPlayer.stop();
-      stopForeground(true);
+
     }
 
     return START_NOT_STICKY;
