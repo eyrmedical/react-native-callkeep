@@ -29,6 +29,7 @@ import java.util.HashMap;
 
 import static com.eyr.callkeep.EyrCallBannerControllerModule.*;
 import static com.eyr.callkeep.Utils.getIncomingCallActivityClass;
+import static com.eyr.callkeep.Utils.getJsBackgroundPayload;
 import static com.eyr.callkeep.Utils.getJsPayload;
 import static com.eyr.callkeep.Utils.getMainActivity;
 import static com.eyr.callkeep.Utils.reactToCall;
@@ -112,21 +113,9 @@ public class EyrCallBannerDisplayService extends Service {
     }
 
     if (action.equals(ACCEPT_CALL)) {
-      Utils.backToForeground(getApplicationContext());
-      new CountDownTimer(1250, 1000) {
-
-        public void onTick(long millisUntilFinished) {
-          //here you can have your logic to set text to edittext
-        }
-
-        public void onFinish() {
-          reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsPayload(payload));
-          stopForeground(true);
-        }
-
-      }.start();
-      callPlayer.stop();
-
+      Utils.backToForeground(getApplicationContext(),getJsPayload(payload));
+      reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsBackgroundPayload(payload));
+      stopForeground(true);
     }
 
     return START_NOT_STICKY;

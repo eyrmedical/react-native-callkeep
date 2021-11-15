@@ -3,6 +3,7 @@ package com.eyr.callkeep;
 import static com.eyr.callkeep.EyrCallBannerControllerModule.ACCEPT_CALL_EVENT;
 import static com.eyr.callkeep.EyrCallBannerControllerModule.ACTION_PAYLOAD_KEY;
 import static com.eyr.callkeep.EyrCallBannerControllerModule.CALL_IS_DECLINED;
+import static com.eyr.callkeep.Utils.getJsBackgroundPayload;
 import static com.eyr.callkeep.Utils.getJsPayload;
 import static com.eyr.callkeep.Utils.reactToCall;
 
@@ -28,19 +29,21 @@ public class IncomingCallActivity extends AppCompatActivity {
   private final View.OnClickListener onAccept = new View.OnClickListener() {
     @Override
     public void onClick(View v) {
-      Utils.backToForeground(getApplicationContext());
-      new CountDownTimer(1250, 1000) {
-
-        public void onTick(long millisUntilFinished) {
-          //here you can have your logic to set text to edittext
-        }
-
-        public void onFinish() {
-          reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsPayload(payload));
-          finish();
-        }
-
-      }.start();
+      Utils.backToForeground(getApplicationContext(),  getJsPayload(payload));
+      reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsBackgroundPayload(payload));
+      finish();
+//      new CountDownTimer(1250, 1000) {
+//
+//        public void onTick(long millisUntilFinished) {
+//          //here you can have your logic to set text to edittext
+//        }
+//
+//        public void onFinish() {
+//          reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsPayload(payload));
+//          finish();
+//        }
+//
+//      }.start();
     }
   };
 

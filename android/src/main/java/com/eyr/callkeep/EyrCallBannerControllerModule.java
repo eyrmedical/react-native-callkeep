@@ -23,6 +23,7 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
   public static final String ACTION_PAYLOAD_KEY = "ACTION_PAYLOAD_KEY";
   public static final String ACCEPT_CALL_EVENT = "ACCEPT_CALL_EVENT";
   public static final String CALL_IS_DECLINED = "CALL_IS_DECLINED";
+  public static final String INITIAL_CALL_STATE_PROP_NAME = "initialCallState";
   public static final String NOTIFICATION_EXTRA_PAYLOAD = "NOTIFICATION_EXTRA_PAYLOAD";
 
   private ReactApplicationContext reactContext;

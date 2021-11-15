@@ -9,6 +9,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 
@@ -70,7 +71,7 @@ public class Utils {
   /**
    * Back main activity to foreground.
    */
-  public static void backToForeground(Context applicationContext) {
+  public static void backToForeground(Context applicationContext,@Nullable Bundle bundle) {
         /*
         val mainActivityIntent = Intent(context, getMainActivityClass(context)).apply {
             addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -83,6 +84,7 @@ public class Utils {
 
     focusIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
     focusIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    focusIntent.putExtra("initialCallState", bundle);
     applicationContext.startActivity(focusIntent);
 
   }
@@ -122,9 +124,23 @@ public class Utils {
     }
   }
 
-  public static WritableMap getJsPayload(HashMap<String, Object> payload) {
+  public static WritableMap getJsBackgroundPayload(HashMap<String, Object> payload) {
     if (payload==null) return null;
     WritableMap jsMap = new WritableNativeMap();
+    for (HashMap.Entry<String, Object> entry : payload.entrySet()) {
+      if (entry.getKey().equals(NOTIFICATION_EXTRA_PAYLOAD)) {
+        HashMap<String, Object> miniPayload = (HashMap<String, Object>) entry.getValue();
+        for (Map.Entry<String, Object> in : miniPayload.entrySet()) {
+          jsMap.putString(in.getKey(), String.valueOf(in.getValue()));
+        }
+      }
+    }
+    return jsMap;
+  }
+
+  public static Bundle getJsPayload(HashMap<String, Object> payload) {
+    if (payload==null) return null;
+    Bundle jsMap = new Bundle();
     for (HashMap.Entry<String, Object> entry : payload.entrySet()) {
       if (entry.getKey().equals(NOTIFICATION_EXTRA_PAYLOAD)) {
         HashMap<String, Object> miniPayload = (HashMap<String, Object>) entry.getValue();
