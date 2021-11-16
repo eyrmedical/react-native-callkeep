@@ -8,9 +8,13 @@ import static com.eyr.callkeep.Utils.getJsPayload;
 import static com.eyr.callkeep.Utils.reactToCall;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.app.KeyguardManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -25,6 +29,16 @@ import java.util.HashMap;
 public class IncomingCallActivity extends AppCompatActivity {
 
   private HashMap<String, Object> payload = null;
+  private LocalBroadcastManager mLocalBroadcastManager;
+  private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      if(intent.getAction().equals(CALL_IS_DECLINED)){
+        finish();
+      }
+    }
+  };
 
   private final View.OnClickListener onAccept = new View.OnClickListener() {
     @Override
@@ -32,18 +46,6 @@ public class IncomingCallActivity extends AppCompatActivity {
       Utils.backToForeground(getApplicationContext(),  getJsPayload(payload));
       reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsBackgroundPayload(payload));
       finish();
-//      new CountDownTimer(1250, 1000) {
-//
-//        public void onTick(long millisUntilFinished) {
-//          //here you can have your logic to set text to edittext
-//        }
-//
-//        public void onFinish() {
-//          reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsPayload(payload));
-//          finish();
-//        }
-//
-//      }.start();
     }
   };
 
@@ -60,9 +62,23 @@ public class IncomingCallActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_incoming_call);
-    showOnLockscreen();
     payload = (HashMap<String, Object>) getIntent().getSerializableExtra(ACTION_PAYLOAD_KEY);
     setUpUI();
+    mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
+    IntentFilter mIntentFilter = new IntentFilter();
+    mIntentFilter.addAction(CALL_IS_DECLINED);
+    mLocalBroadcastManager.registerReceiver(mBroadcastReceiver, mIntentFilter);
+  }
+
+  protected void onDestroy() {
+    super.onDestroy();
+    mLocalBroadcastManager.unregisterReceiver(mBroadcastReceiver);
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    showOnLockscreen();
   }
 
   private void setUpUI() {

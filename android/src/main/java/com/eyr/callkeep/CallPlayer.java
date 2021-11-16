@@ -54,6 +54,7 @@ public class CallPlayer {
     }
     Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE);
     defaultRingtone = RingtoneManager.getRingtone(context, defaultRingtoneUri);
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
       defaultRingtone.setVolume(audioManager.getStreamVolume(AudioManager.STREAM_RING));
     }
