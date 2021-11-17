@@ -2,6 +2,7 @@ package com.eyr.callkeep;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -102,7 +103,7 @@ public class EyrCallBannerDisplayService extends Service {
 
     return START_NOT_STICKY;
   }
-
+  @SuppressLint("WrongConstant")
   private void prepareNotification(Intent intent, HashMap<String, Object> payload) {
     Intent dismissBannerIntent = new Intent(this, getClass());
     dismissBannerIntent.setAction(DISMISS_BANNER);
@@ -141,8 +142,9 @@ public class EyrCallBannerDisplayService extends Service {
           pendingDismissBannerIntent).build())
         .setDefaults(Notification.DEFAULT_LIGHTS)
         .setFullScreenIntent(openIncomingCallScreenPendingIntent, isDeviceScreenLocked(getApplicationContext()))
-        .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .setPriority(NotificationCompat.PRIORITY_MAX)
         .setSound(uri, AudioManager.STREAM_NOTIFICATION)
+        .setCategory(Notification.CATEGORY_CALL)
         .setVibrate(null)
         .setOngoing(true);
     startForeground(CALL_NOTIFICATION_ID, notificationBuilder.build());

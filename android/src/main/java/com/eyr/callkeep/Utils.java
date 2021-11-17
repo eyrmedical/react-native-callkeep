@@ -4,7 +4,6 @@ import static com.eyr.callkeep.EyrCallBannerControllerModule.CALL_INCOMING_CHANN
 import static com.eyr.callkeep.EyrCallBannerControllerModule.INITIAL_CALL_STATE_PROP_NAME;
 import static com.eyr.callkeep.EyrCallBannerControllerModule.NOTIFICATION_EXTRA_PAYLOAD;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.KeyguardManager;
@@ -173,7 +172,6 @@ public class Utils {
     return jsMap;
   }
 
-  @SuppressLint("WrongConstant")
   public static void createIncomingCallNotificationChannel(Context context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       NotificationManager notificationManager =
@@ -191,16 +189,20 @@ public class Utils {
       if (channel==null) {
         channel = new NotificationChannel(CALL_INCOMING_CHANNEL_ID,
           "Ongoing call",
-          NotificationManager.IMPORTANCE_MAX);
+          NotificationManager.IMPORTANCE_HIGH);
         notificationManager.createNotificationChannel(channel);
       }
-      AudioAttributes audioAttributes = new AudioAttributes.Builder()
+      AudioAttributes attrs = new AudioAttributes.Builder()
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .setLegacyStreamType(AudioManager.STREAM_RING)
         .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
         .build();
 
-      channel.setImportance(NotificationManager.IMPORTANCE_MAX);
+      channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
       channel.setSound(uri, audioAttributes);
+      channel.enableVibration(false);
+      channel.enableLights(false);
+      channel.setBypassDnd(true);
     }
   }
 
