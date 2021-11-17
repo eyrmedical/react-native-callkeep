@@ -139,6 +139,7 @@ public class EyrCallBannerDisplayService extends Service {
         .setFullScreenIntent(openIncomingCallScreenPendingIntent, isDeviceScreenLocked(getApplicationContext()))
         .setPriority(NotificationCompat.PRIORITY_MAX)
         .setCategory(Notification.CATEGORY_CALL)
+        .setSound(null)
         .setVibrate(null)
         .setOngoing(true);
     startForeground(CALL_NOTIFICATION_ID, notificationBuilder.build());

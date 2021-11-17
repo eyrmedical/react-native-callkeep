@@ -200,7 +200,7 @@ public class Utils {
         .build();
 
       channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
-      channel.setSound(uri, attrs);
+      channel.setSound(null, null);
       channel.enableVibration(false);
       channel.enableLights(false);
       channel.setBypassDnd(true);
