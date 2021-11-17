@@ -4,6 +4,7 @@ import static com.eyr.callkeep.EyrCallBannerControllerModule.CALL_INCOMING_CHANN
 import static com.eyr.callkeep.EyrCallBannerControllerModule.INITIAL_CALL_STATE_PROP_NAME;
 import static com.eyr.callkeep.EyrCallBannerControllerModule.NOTIFICATION_EXTRA_PAYLOAD;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.KeyguardManager;
