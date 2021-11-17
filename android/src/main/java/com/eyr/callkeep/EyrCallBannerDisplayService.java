@@ -11,9 +11,6 @@ import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -127,8 +124,6 @@ public class EyrCallBannerDisplayService extends Service {
       openIncomingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-    Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.nosound);
-
     openIncomingCallScreen.addFlags(FLAG_ACTIVITY_NEW_TASK);
     NotificationCompat.Builder notificationBuilder =
       new EyrNotificationCompatBuilderArgSerializer(payload).createNotificationFromContext(this)
@@ -143,7 +138,6 @@ public class EyrCallBannerDisplayService extends Service {
         .setDefaults(Notification.DEFAULT_LIGHTS)
         .setFullScreenIntent(openIncomingCallScreenPendingIntent, isDeviceScreenLocked(getApplicationContext()))
         .setPriority(NotificationCompat.PRIORITY_MAX)
-        .setSound(uri, AudioManager.STREAM_NOTIFICATION)
         .setCategory(Notification.CATEGORY_CALL)
         .setVibrate(null)
         .setOngoing(true);
