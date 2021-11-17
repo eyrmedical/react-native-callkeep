@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
+import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 
@@ -197,6 +198,23 @@ public class Utils {
         .build();
       channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
       channel.setSound(uri, audioAttributes);
+    }
+  }
+
+  public static void showOnLockscreen(Activity activity) {
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
+      activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
+        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+      activity.setTurnScreenOn(true);
+      activity.setShowWhenLocked(true);
+
+      KeyguardManager keyguardManager = (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
+      keyguardManager.requestDismissKeyguard(activity, null);
+    } else {
+      activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+        | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
     }
   }
 }

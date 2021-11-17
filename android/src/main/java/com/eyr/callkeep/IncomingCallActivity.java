@@ -6,10 +6,12 @@ import static com.eyr.callkeep.EyrCallBannerControllerModule.CALL_IS_DECLINED;
 import static com.eyr.callkeep.Utils.getJsBackgroundPayload;
 import static com.eyr.callkeep.Utils.getJsPayload;
 import static com.eyr.callkeep.Utils.reactToCall;
+import static com.eyr.callkeep.Utils.showOnLockscreen;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -78,7 +80,7 @@ public class IncomingCallActivity extends AppCompatActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    showOnLockscreen();
+    showOnLockscreen(this);
   }
 
   private void setUpUI() {
@@ -98,24 +100,5 @@ public class IncomingCallActivity extends AppCompatActivity {
   }
 
 
-
-
-
-  private void showOnLockscreen() {
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
-      getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
-        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-      setTurnScreenOn(true);
-      setShowWhenLocked(true);
-
-      KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-      keyguardManager.requestDismissKeyguard(this, null);
-    } else {
-      getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-        | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-    }
-  }
 
 }
