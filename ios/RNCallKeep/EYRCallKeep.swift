@@ -221,6 +221,7 @@ public class EYRCallKeep: RCTEventEmitter {
         cxCallUpdate.remoteHandle = CXHandle(type: .generic, value: handle)
         cxCallUpdate.hasVideo = hasVideo
         cxCallUpdate.localizedCallerName = name;
+        cxCallUpdate.supportsHolding = false
         
         createCallKitProvider()
         if let provider = callKeepProvider {
