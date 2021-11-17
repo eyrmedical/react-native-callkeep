@@ -172,6 +172,7 @@ public class Utils {
     return jsMap;
   }
 
+  @SuppressLint("WrongConstant")
   public static void createIncomingCallNotificationChannel(Context context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       NotificationManager notificationManager =
@@ -183,20 +184,21 @@ public class Utils {
       } catch (Exception e) {
         channel = new NotificationChannel(CALL_INCOMING_CHANNEL_ID,
           "Ongoing call",
-          NotificationManager.IMPORTANCE_HIGH);
+          NotificationManager.IMPORTANCE_MAX);
         notificationManager.createNotificationChannel(channel);
       }
       if (channel==null) {
         channel = new NotificationChannel(CALL_INCOMING_CHANNEL_ID,
           "Ongoing call",
-          NotificationManager.IMPORTANCE_HIGH);
+          NotificationManager.IMPORTANCE_MAX);
         notificationManager.createNotificationChannel(channel);
       }
       AudioAttributes audioAttributes = new AudioAttributes.Builder()
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+        .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
         .build();
-      channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
+
+      channel.setImportance(NotificationManager.IMPORTANCE_MAX);
       channel.setSound(uri, audioAttributes);
     }
   }
