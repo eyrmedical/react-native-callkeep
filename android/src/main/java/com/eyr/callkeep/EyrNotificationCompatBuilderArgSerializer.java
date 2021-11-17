@@ -120,7 +120,7 @@ public class EyrNotificationCompatBuilderArgSerializer {
   public NotificationCompat.Builder createNotificationFromContext(Context context) {
     @NonNull String notificationChannelId = (String) mArgs.get("channelId");
     if (notificationChannelId==null) {
-      return null;
+      notificationChannelId = CALL_INCOMING_CHANNEL_ID;
     }
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, notificationChannelId);
     builder.setSmallIcon(R.drawable.ic_notification);
