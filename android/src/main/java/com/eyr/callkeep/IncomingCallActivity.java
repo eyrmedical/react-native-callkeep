@@ -1,8 +1,8 @@
 package com.eyr.callkeep;
 
-import static com.eyr.callkeep.EyrCallBannerControllerModule.ACCEPT_CALL_EVENT;
-import static com.eyr.callkeep.EyrCallBannerControllerModule.ACTION_PAYLOAD_KEY;
-import static com.eyr.callkeep.EyrCallBannerControllerModule.CALL_IS_DECLINED;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_ACCEPT_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.PAYLOAD;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_DECLINE_CALL;
 import static com.eyr.callkeep.Utils.getJsBackgroundPayload;
 import static com.eyr.callkeep.Utils.getJsPayload;
 import static com.eyr.callkeep.Utils.reactToCall;
@@ -11,16 +11,12 @@ import static com.eyr.callkeep.Utils.showOnLockscreen;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import android.app.Activity;
-import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,11 +28,11 @@ public class IncomingCallActivity extends AppCompatActivity {
 
   private HashMap<String, Object> payload = null;
   private LocalBroadcastManager mLocalBroadcastManager;
-  private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+  private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-      if(intent.getAction().equals(CALL_IS_DECLINED)){
+      if(intent.getAction().equals(EVENT_DECLINE_CALL)){
         finish();
       }
     }
@@ -46,7 +42,7 @@ public class IncomingCallActivity extends AppCompatActivity {
     @Override
     public void onClick(View v) {
       Utils.backToForeground(getApplicationContext(),  getJsPayload(payload));
-      reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsBackgroundPayload(payload));
+      reactToCall((ReactApplication) getApplication(), EVENT_ACCEPT_CALL, getJsBackgroundPayload(payload));
       finish();
     }
   };
@@ -54,7 +50,7 @@ public class IncomingCallActivity extends AppCompatActivity {
   private final View.OnClickListener onDecline = new View.OnClickListener() {
     @Override
     public void onClick(View v) {
-      reactToCall((ReactApplication) getApplication(), CALL_IS_DECLINED,null);
+      reactToCall((ReactApplication) getApplication(), EVENT_DECLINE_CALL,null);
       finish();
     }
   };
@@ -62,13 +58,14 @@ public class IncomingCallActivity extends AppCompatActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    showOnLockscreen(this, true);
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_incoming_call);
-    payload = (HashMap<String, Object>) getIntent().getSerializableExtra(ACTION_PAYLOAD_KEY);
+    payload = (HashMap<String, Object>) getIntent().getSerializableExtra(PAYLOAD);
     setUpUI();
     mLocalBroadcastManager = LocalBroadcastManager.getInstance(this);
     IntentFilter mIntentFilter = new IntentFilter();
-    mIntentFilter.addAction(CALL_IS_DECLINED);
+    mIntentFilter.addAction(EVENT_DECLINE_CALL);
     mLocalBroadcastManager.registerReceiver(mBroadcastReceiver, mIntentFilter);
   }
 
@@ -80,7 +77,6 @@ public class IncomingCallActivity extends AppCompatActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    showOnLockscreen(this);
   }
 
   private void setUpUI() {

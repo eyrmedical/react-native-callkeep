@@ -1,8 +1,10 @@
 package com.eyr.callkeep;
 
-import static com.eyr.callkeep.EyrCallBannerControllerModule.CALL_INCOMING_CHANNEL_ID;
-import static com.eyr.callkeep.EyrCallBannerControllerModule.INITIAL_CALL_STATE_PROP_NAME;
-import static com.eyr.callkeep.EyrCallBannerControllerModule.NOTIFICATION_EXTRA_PAYLOAD;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.CHANNEL_ID_INCOMING_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.CHANNEL_ID_ONGOING_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.CHANNEL_NAME_INCOMING_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.CHANNEL_NAME_ONGOING_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.NOTIFICATION_EXTRA_PAYLOAD;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -36,6 +38,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Utils {
+
+  public static final String INITIAL_CALL_STATE_PROP_NAME = "initialCallState";
 
   public static Boolean isDeviceScreenLocked(Context context) {
     boolean isLocked;
@@ -100,14 +104,19 @@ public class Utils {
         context.startActivity(mainActivityIntent)
         */
 
+    Intent focusIntent = getMainActivityIntent(applicationContext);
+    focusIntent.putExtra(INITIAL_CALL_STATE_PROP_NAME, bundle);
+    applicationContext.startActivity(focusIntent);
+
+  }
+
+  public static Intent getMainActivityIntent(Context applicationContext) {
     String packageName = applicationContext.getPackageName();
     Intent focusIntent = applicationContext.getPackageManager().getLaunchIntentForPackage(packageName).cloneFilter();
 
     focusIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
     focusIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    focusIntent.putExtra(INITIAL_CALL_STATE_PROP_NAME, bundle);
-    applicationContext.startActivity(focusIntent);
-
+    return focusIntent;
   }
 
   public static Class getMainActivity(Context context) {
@@ -178,27 +187,52 @@ public class Utils {
       NotificationManager notificationManager =
         (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
       NotificationChannel channel;
-      Uri uri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.nosound);
+      Uri soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ context.getPackageName() + "/" + R.raw.nosound);
+      AudioAttributes audioAttributes = new AudioAttributes.Builder()
+        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+        .build();
       try {
-        channel = notificationManager.getNotificationChannel(CALL_INCOMING_CHANNEL_ID);
+        channel = notificationManager.getNotificationChannel(CHANNEL_ID_INCOMING_CALL);
       } catch (Exception e) {
-        channel = new NotificationChannel(CALL_INCOMING_CHANNEL_ID,
-          "Ongoing call",
-          NotificationManager.IMPORTANCE_MAX);
-        notificationManager.createNotificationChannel(channel);
-      }
-      if (channel==null) {
-        channel = new NotificationChannel(CALL_INCOMING_CHANNEL_ID,
-          "Ongoing call",
+        channel = new NotificationChannel(CHANNEL_ID_INCOMING_CALL,
+          CHANNEL_NAME_INCOMING_CALL,
           NotificationManager.IMPORTANCE_HIGH);
         notificationManager.createNotificationChannel(channel);
       }
-      AudioAttributes attrs = new AudioAttributes.Builder()
-        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-        .setLegacyStreamType(AudioManager.STREAM_RING)
-        .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-        .build();
+      if (channel==null) {
+        channel = new NotificationChannel(CHANNEL_ID_INCOMING_CALL,
+          CHANNEL_NAME_INCOMING_CALL,
+          NotificationManager.IMPORTANCE_HIGH);
+        notificationManager.createNotificationChannel(channel);
+      }
+      channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
+      channel.setSound(soundUri, audioAttributes);
+      channel.enableVibration(false);
+      channel.enableLights(false);
+      channel.setBypassDnd(true);
+    }
+  }
 
+  public static void createOngoingCallNotificationChannel(Context context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      NotificationManager notificationManager =
+        (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+      NotificationChannel channel;
+      try {
+        channel = notificationManager.getNotificationChannel(CHANNEL_ID_ONGOING_CALL);
+      } catch (Exception e) {
+        channel = new NotificationChannel(CHANNEL_ID_ONGOING_CALL,
+          CHANNEL_NAME_ONGOING_CALL,
+          NotificationManager.IMPORTANCE_HIGH);
+        notificationManager.createNotificationChannel(channel);
+      }
+      if (channel==null) {
+        channel = new NotificationChannel(CHANNEL_ID_ONGOING_CALL,
+          CHANNEL_NAME_ONGOING_CALL,
+          NotificationManager.IMPORTANCE_HIGH);
+        notificationManager.createNotificationChannel(channel);
+      }
       channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
       channel.setSound(null, null);
       channel.enableVibration(false);
@@ -207,20 +241,39 @@ public class Utils {
     }
   }
 
-  public static void showOnLockscreen(Activity activity) {
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
-      activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
-        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-      activity.setTurnScreenOn(true);
-      activity.setShowWhenLocked(true);
+  public static void showOnLockscreen(Activity activity, boolean shouldShow) {
 
-      KeyguardManager keyguardManager = (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
-      keyguardManager.requestDismissKeyguard(activity, null);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+      if (shouldShow) {
+        activity.getWindow().addFlags(
+          WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+          WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        activity.setTurnScreenOn(true);
+        activity.setShowWhenLocked(true);
+
+        KeyguardManager keyguardManager = (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
+        keyguardManager.requestDismissKeyguard(activity, null);
+        return;
+      }
+      activity.getWindow().clearFlags(
+        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+          WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+      activity.setTurnScreenOn(false);
+      activity.setShowWhenLocked(false);
     } else {
-      activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+      if (shouldShow) {
+        activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+          | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+          | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+          | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        return;
+      }
+      activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
         | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
     }
   }
+
+
 }

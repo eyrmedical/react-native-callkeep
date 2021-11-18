@@ -1,6 +1,13 @@
 package com.eyr.callkeep;
 
-import android.app.Application;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.ACTION_SHOW_ONGOING_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.PAYLOAD;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.CHANNEL_ID_INCOMING_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.CHANNEL_NAME_INCOMING_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.ACTION_START_CALL_BANNER;
+import static com.facebook.react.bridge.UiThreadUtil.runOnUiThread;
+
+import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 
@@ -16,15 +23,6 @@ import java.util.Map;
 public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
   // TODO: Make the consumer application to configure their own name and id for the call
   // banner channel
-  public static final String CALL_INCOMING_CHANNEL_NAME = "Ongoing Call";
-  public static final String CALL_INCOMING_CHANNEL_ID = "com.eyr.callkeep.incoming_call";
-  public static final String START_CALL_BANNER = "START_CALL_BANNER";
-  public static final String DISMISS_BANNER = "DISMISS_BANNER";
-  public static final String ACTION_PAYLOAD_KEY = "ACTION_PAYLOAD_KEY";
-  public static final String ACCEPT_CALL_EVENT = "ACCEPT_CALL_EVENT";
-  public static final String CALL_IS_DECLINED = "CALL_IS_DECLINED";
-  public static final String INITIAL_CALL_STATE_PROP_NAME = "initialCallState";
-  public static final String NOTIFICATION_EXTRA_PAYLOAD = "NOTIFICATION_EXTRA_PAYLOAD";
 
   private ReactApplicationContext reactContext;
 
@@ -45,20 +43,36 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void startCallBanner(@Nullable ReadableMap callBannerPayload) {
-    Log.d("ReactNativeJS", "starting call banner");
+  public void startOngoingCallNotification(@Nullable ReadableMap callBannerPayload) {
     Intent intent = new Intent(reactContext.getApplicationContext(), EyrCallBannerDisplayService.class);
-    // TODO: convert callBannerPayload to native map
-    intent.setAction(START_CALL_BANNER);
-    intent.putExtra(ACTION_PAYLOAD_KEY, callBannerPayload.toHashMap());
+    intent.setAction(ACTION_SHOW_ONGOING_CALL);
+    intent.putExtra(PAYLOAD, callBannerPayload.toHashMap());
     reactContext.getApplicationContext().startService(intent);
-    Log.d("ReactNativeJS", "call banner service started");
+  }
+
+  @ReactMethod
+  public void startCallBanner(@Nullable ReadableMap callBannerPayload) {
+    Intent intent = new Intent(reactContext.getApplicationContext(), EyrCallBannerDisplayService.class);
+    intent.setAction(ACTION_START_CALL_BANNER);
+    intent.putExtra(PAYLOAD, callBannerPayload.toHashMap());
+    reactContext.getApplicationContext().startService(intent);
   }
 
   @ReactMethod
   public void stopCallBanner() {
     Intent intent = new Intent(reactContext.getApplicationContext(), EyrCallBannerDisplayService.class);
     reactContext.getApplicationContext().stopService(intent);
+  }
+
+  @ReactMethod
+  public void hideOnLockScreen(){
+    reactContext.getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Utils.showOnLockscreen(reactContext.getCurrentActivity(),false);
+      }
+    });
+
   }
 
   @Override
@@ -70,8 +84,8 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
   @Override
   public Map<String, Object> getConstants() {
     HashMap<String, Object> constants = new HashMap<>();
-    constants.put("CALL_INCOMING_CHANNEL_NAME", CALL_INCOMING_CHANNEL_NAME);
-    constants.put("CALL_INCOMING_CHANNEL_ID", CALL_INCOMING_CHANNEL_ID);
+    constants.put("CALL_INCOMING_CHANNEL_NAME", CHANNEL_NAME_INCOMING_CALL);
+    constants.put("CALL_INCOMING_CHANNEL_ID", CHANNEL_ID_INCOMING_CALL);
 
     constants.put("PRIORITY_MAX", NotificationCompat.PRIORITY_MAX);
     constants.put("PRIORITY_HIGH", NotificationCompat.PRIORITY_HIGH);

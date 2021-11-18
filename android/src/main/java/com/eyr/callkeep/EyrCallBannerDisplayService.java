@@ -1,52 +1,59 @@
 package com.eyr.callkeep;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.IBinder;
-import android.os.PowerManager;
-import android.util.Log;
-import android.widget.Toast;
+import android.widget.RemoteViews;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.facebook.react.ReactApplication;
-import com.facebook.react.ReactInstanceManager;
-import com.facebook.react.ReactNativeHost;
-import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.WritableNativeMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.HashMap;
 
-import static com.eyr.callkeep.EyrCallBannerControllerModule.*;
 import static com.eyr.callkeep.Utils.createIncomingCallNotificationChannel;
+import static com.eyr.callkeep.Utils.createOngoingCallNotificationChannel;
 import static com.eyr.callkeep.Utils.getIncomingCallActivityClass;
 import static com.eyr.callkeep.Utils.getJsBackgroundPayload;
 import static com.eyr.callkeep.Utils.getJsPayload;
-import static com.eyr.callkeep.Utils.getMainActivity;
+import static com.eyr.callkeep.Utils.getMainActivityIntent;
 import static com.eyr.callkeep.Utils.isDeviceScreenLocked;
 import static com.eyr.callkeep.Utils.reactToCall;
 
 public class EyrCallBannerDisplayService extends Service {
   public static final int CALL_NOTIFICATION_ID = 23;
+  public static final int ONGOING_CALL_NOTIFICATION_ID = 22;
 
-  private static final String ACCEPT_CALL = "ACCEPT_CALL";
-  private static final String SHOW_INCOMING_CALL = "SHOW_INCOMING_CALL";
+  public static final String ACTION_ACCEPT_CALL = "ACTION_ACCEPT_CALL";
+  public static final String ACTION_SHOW_INCOMING_CALL = "ACTION_SHOW_INCOMING_CALL";
+  public static final String ACTION_START_CALL_BANNER = "ACTION_START_CALL_BANNER";
+  public static final String ACTION_DISMISS_BANNER = "ACTION_DISMISS_BANNER";
+  public static final String ACTION_END_CALL = "ACTION_END_CALL";
+  public static final String ACTION_SHOW_ONGOING_CALL = "ACTION_SHOW_ONGOING_CALL";
+
+
+  public static final String CHANNEL_NAME_INCOMING_CALL = "Incoming Call notification";
+  public static final String CHANNEL_NAME_ONGOING_CALL = "Ongoing Call notification";
+  public static final String CHANNEL_ID_INCOMING_CALL = "com.eyr.callkeep.incoming_call_new";
+  public static final String CHANNEL_ID_ONGOING_CALL = "com.eyr.callkeep.ongoing_call_new";
+
+  public static final String PAYLOAD = "PAYLOAD";
+
+  public static final String EVENT_ACCEPT_CALL = "EVENT_ACCEPT_CALL";
+  public static final String EVENT_DECLINE_CALL = "EVENT_DECLINE_CALL";
+  public static final String EVENT_END_CALL = "EVENT_END_CALL";
+
+
+  public static final String NOTIFICATION_EXTRA_PAYLOAD = "NOTIFICATION_EXTRA_PAYLOAD";
 
   private CallPlayer callPlayer = new CallPlayer();;
 
@@ -67,13 +74,14 @@ public class EyrCallBannerDisplayService extends Service {
 
   private void stopIncomingCallActivity() {
     LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-    localBroadcastManager.sendBroadcast(new Intent(CALL_IS_DECLINED));
+    localBroadcastManager.sendBroadcast(new Intent(EVENT_DECLINE_CALL));
   }
 
   @Override
   public void onCreate() {
     super.onCreate();
     createIncomingCallNotificationChannel(this);
+    createOngoingCallNotificationChannel(this);
   }
 
   @Override
@@ -83,34 +91,46 @@ public class EyrCallBannerDisplayService extends Service {
     }
     String action = intent.getAction();
 
-    final HashMap<String, Object> payload = (HashMap<String, Object>) intent.getSerializableExtra(ACTION_PAYLOAD_KEY);
-    if (action.equals(START_CALL_BANNER)) {
-      prepareNotification(intent, payload);
+    final HashMap<String, Object> payload = (HashMap<String, Object>) intent.getSerializableExtra(PAYLOAD);
+    if (action.equals(ACTION_START_CALL_BANNER)) {
+      prepareIncomingNotification(intent, payload);
     }
 
-    if (action.equals(DISMISS_BANNER)) {
-        reactToCall((ReactApplication) getApplication(), CALL_IS_DECLINED, null);
+    if (action.equals(ACTION_DISMISS_BANNER)) {
+        reactToCall((ReactApplication) getApplication(), EVENT_DECLINE_CALL, null);
     }
 
-    if (action.equals(ACCEPT_CALL)) {
+    if (action.equals(ACTION_ACCEPT_CALL)) {
       Utils.backToForeground(getApplicationContext(),getJsPayload(payload));
-      reactToCall((ReactApplication) getApplication(), ACCEPT_CALL_EVENT, getJsBackgroundPayload(payload));
+      reactToCall((ReactApplication) getApplication(), EVENT_ACCEPT_CALL, getJsBackgroundPayload(payload));
+      if (callPlayer!=null) {
+        callPlayer.stop();
+      }
+    }
+
+    if (action.equals(ACTION_END_CALL)) {
+      reactToCall((ReactApplication) getApplication(), EVENT_END_CALL, getJsBackgroundPayload(payload));
       stopForeground(true);
     }
 
-    return START_NOT_STICKY;
+
+    if (action.equals(ACTION_SHOW_ONGOING_CALL)) {
+      prepareOngoingNotification(payload);
+    }
+
+    return START_STICKY;
   }
-  @SuppressLint("WrongConstant")
-  private void prepareNotification(Intent intent, HashMap<String, Object> payload) {
+
+  private void prepareIncomingNotification(Intent intent, HashMap<String, Object> payload) {
     Intent dismissBannerIntent = new Intent(this, getClass());
-    dismissBannerIntent.setAction(DISMISS_BANNER);
+    dismissBannerIntent.setAction(ACTION_DISMISS_BANNER);
 
     Intent acceptCallAndOpenApp = new Intent(this, getClass());
-    acceptCallAndOpenApp.setAction(ACCEPT_CALL);
+    acceptCallAndOpenApp.setAction(ACTION_ACCEPT_CALL);
     acceptCallAndOpenApp.putExtras(intent);
 
     Intent openIncomingCallScreen = new Intent(this, IncomingCallActivity.class);
-    openIncomingCallScreen.setAction(SHOW_INCOMING_CALL);
+    openIncomingCallScreen.setAction(ACTION_SHOW_INCOMING_CALL);
     openIncomingCallScreen.putExtras(intent);
 
 
@@ -123,10 +143,10 @@ public class EyrCallBannerDisplayService extends Service {
     PendingIntent openIncomingCallScreenPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
       openIncomingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT);
 
-
     openIncomingCallScreen.addFlags(FLAG_ACTIVITY_NEW_TASK);
     NotificationCompat.Builder notificationBuilder =
-      new EyrNotificationCompatBuilderArgSerializer(payload).createNotificationFromContext(this)
+      new EyrNotificationCompatBuilderArgSerializer(payload)
+        .createNotificationFromContext(this, CHANNEL_ID_INCOMING_CALL)
         .addAction(new NotificationCompat.Action.Builder(
           R.drawable.ic_notification,
           EyrNotificationCompatBuilderArgSerializer.parseAcceptBtnTitle(payload),
@@ -136,13 +156,44 @@ public class EyrCallBannerDisplayService extends Service {
           EyrNotificationCompatBuilderArgSerializer.parseDeclineBtnTitle(payload),
           pendingDismissBannerIntent).build())
         .setDefaults(Notification.DEFAULT_LIGHTS)
-        .setFullScreenIntent(openIncomingCallScreenPendingIntent, isDeviceScreenLocked(getApplicationContext()))
-        .setPriority(NotificationCompat.PRIORITY_MAX)
+        .setFullScreenIntent(openIncomingCallScreenPendingIntent, true)
+        //.setPriority(NotificationCompat.PRIORITY_HIGH)
         .setCategory(Notification.CATEGORY_CALL)
-        .setSound(null)
-        .setVibrate(null)
         .setOngoing(true);
-    startForeground(CALL_NOTIFICATION_ID, notificationBuilder.build());
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      startForeground(CALL_NOTIFICATION_ID, notificationBuilder.build(), FOREGROUND_SERVICE_TYPE_PHONE_CALL);
+    } else {
+      startForeground(CALL_NOTIFICATION_ID, notificationBuilder.build());
+    }
     callPlayer.play(this);
+  }
+
+  private void prepareOngoingNotification(HashMap<String, Object> payload) {
+    Intent openOngoingCallScreen = getMainActivityIntent(this);
+    PendingIntent openOngoingCallScreenPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
+      openOngoingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT);
+
+    Intent endCallOpenApp = new Intent(this, getClass());
+    endCallOpenApp.setAction(ACTION_END_CALL);
+    PendingIntent endCCallPendingIntent = PendingIntent.getService(getApplicationContext(), 0,
+      endCallOpenApp, PendingIntent.FLAG_UPDATE_CURRENT);
+
+    NotificationCompat.Builder notificationBuilder =
+      new EyrNotificationCompatBuilderArgSerializer(payload)
+        .createNotificationFromContext(this,CHANNEL_ID_ONGOING_CALL)
+        .addAction(new NotificationCompat.Action.Builder(
+          R.drawable.ic_notification,
+          EyrNotificationCompatBuilderArgSerializer.parseEndCallTBtnTitle(payload),
+          endCCallPendingIntent).build())
+        .setDefaults(Notification.DEFAULT_LIGHTS)
+        .setContentIntent(openOngoingCallScreenPendingIntent)
+        .setPriority(NotificationCompat.PRIORITY_LOW)
+        .setCategory(Notification.CATEGORY_CALL)
+        .setAutoCancel(false)
+        .setOngoing(true)
+        .setSilent(true);
+//    NotificationManager notificationManager = getSystemService(NotificationManager.class);
+//    notificationManager.notify(ONGOING_CALL_NOTIFICATION_ID,notificationBuilder.build());
+    startForeground(ONGOING_CALL_NOTIFICATION_ID, notificationBuilder.build());
   }
 }
