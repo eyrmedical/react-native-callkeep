@@ -4,13 +4,11 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.widget.RemoteViews;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -22,11 +20,9 @@ import java.util.HashMap;
 
 import static com.eyr.callkeep.Utils.createIncomingCallNotificationChannel;
 import static com.eyr.callkeep.Utils.createOngoingCallNotificationChannel;
-import static com.eyr.callkeep.Utils.getIncomingCallActivityClass;
 import static com.eyr.callkeep.Utils.getJsBackgroundPayload;
 import static com.eyr.callkeep.Utils.getJsPayload;
 import static com.eyr.callkeep.Utils.getMainActivityIntent;
-import static com.eyr.callkeep.Utils.isDeviceScreenLocked;
 import static com.eyr.callkeep.Utils.reactToCall;
 
 public class EyrCallBannerDisplayService extends Service {
@@ -175,7 +171,7 @@ public class EyrCallBannerDisplayService extends Service {
 
     Intent endCallOpenApp = new Intent(this, getClass());
     endCallOpenApp.setAction(ACTION_END_CALL);
-    PendingIntent endCCallPendingIntent = PendingIntent.getService(getApplicationContext(), 0,
+    PendingIntent endCallPendingIntent = PendingIntent.getService(getApplicationContext(), 0,
       endCallOpenApp, PendingIntent.FLAG_UPDATE_CURRENT);
 
     NotificationCompat.Builder notificationBuilder =
@@ -183,8 +179,8 @@ public class EyrCallBannerDisplayService extends Service {
         .createNotificationFromContext(this,CHANNEL_ID_ONGOING_CALL)
         .addAction(new NotificationCompat.Action.Builder(
           R.drawable.ic_notification,
-          EyrNotificationCompatBuilderArgSerializer.parseEndCallTBtnTitle(payload),
-          endCCallPendingIntent).build())
+          EyrNotificationCompatBuilderArgSerializer.parseEndCallBtnTitle(payload),
+          endCallPendingIntent).build())
         .setDefaults(Notification.DEFAULT_LIGHTS)
         .setContentIntent(openOngoingCallScreenPendingIntent)
         .setPriority(NotificationCompat.PRIORITY_LOW)

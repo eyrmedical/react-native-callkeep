@@ -100,7 +100,7 @@ public class EyrNotificationCompatBuilderArgSerializer {
   }
 
   @Nullable
-  public static String parseEndCallTBtnTitle(HashMap<String, Object> args) {
+  public static String parseEndCallBtnTitle(HashMap<String, Object> args) {
     return (String) args.get("endCallTitle");
   }
 
