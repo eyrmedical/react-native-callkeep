@@ -19,10 +19,9 @@ import com.facebook.react.bridge.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
-  // TODO: Make the consumer application to configure their own name and id for the call
-  // banner channel
 
   private ReactApplicationContext reactContext;
 
@@ -66,7 +65,7 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void hideOnLockScreen(){
-    reactContext.getCurrentActivity().runOnUiThread(new Runnable() {
+    Objects.requireNonNull(reactContext.getCurrentActivity()).runOnUiThread(new Runnable() {
       @Override
       public void run() {
         Utils.showOnLockscreen(reactContext.getCurrentActivity(),false);

@@ -245,19 +245,17 @@ public class Utils {
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
       if (shouldShow) {
-        activity.getWindow().addFlags(
-          WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
-          WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+
         activity.setTurnScreenOn(true);
         activity.setShowWhenLocked(true);
 
-        KeyguardManager keyguardManager = (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
-        keyguardManager.requestDismissKeyguard(activity, null);
+        activity.getWindow().addFlags(
+          WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         return;
       }
       activity.getWindow().clearFlags(
-        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
-          WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
       activity.setTurnScreenOn(false);
       activity.setShowWhenLocked(false);
     } else {
