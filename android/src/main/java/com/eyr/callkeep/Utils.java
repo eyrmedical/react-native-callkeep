@@ -131,19 +131,6 @@ public class Utils {
     }
   }
 
-  @Nullable
-  public static Class getIncomingCallActivityClass() {
-    Class mainActivityClass = null;
-    try {
-      // TODO: Do not hard code MainActivity since the app itself can use a different class name
-      String mainActivityClassName = "com.eyr.callkeep.IncomingCallActivity";
-      mainActivityClass = Class.forName(mainActivityClassName);
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-    }
-    return mainActivityClass;
-  }
-
   public static void reactToCall(ReactApplication application, String event, WritableMap payload) {
     ReactNativeHost reactNativeHost = application.getReactNativeHost();
     ReactInstanceManager reactInstanceManager = reactNativeHost.getReactInstanceManager();
@@ -187,19 +174,11 @@ public class Utils {
       NotificationManager notificationManager =
         (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
       NotificationChannel channel;
-      Uri soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ context.getPackageName() + "/" + R.raw.nosound);
-      AudioAttributes audioAttributes = new AudioAttributes.Builder()
-        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-        .build();
-
       try {
         channel = notificationManager.getNotificationChannel(CHANNEL_ID_INCOMING_CALL);
         channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
-        channel.setSound(soundUri, audioAttributes);
+        channel.setSound(null, null);
         channel.enableVibration(false);
-        channel.enableLights(false);
-        channel.setBypassDnd(true);
         return;
       } catch (Exception e) {
         e.printStackTrace();
@@ -207,10 +186,8 @@ public class Utils {
       channel = new NotificationChannel(CHANNEL_ID_INCOMING_CALL,
         CHANNEL_NAME_INCOMING_CALL,
         NotificationManager.IMPORTANCE_HIGH);
-      channel.setSound(soundUri, audioAttributes);
+      channel.setSound(null, null);
       channel.enableVibration(false);
-      channel.enableLights(false);
-      channel.setBypassDnd(true);
       notificationManager.createNotificationChannel(channel);
 
     }
@@ -225,8 +202,6 @@ public class Utils {
         channel = notificationManager.getNotificationChannel(CHANNEL_ID_ONGOING_CALL);
         channel.setSound(null, null);
         channel.enableVibration(false);
-        channel.enableLights(false);
-        channel.setBypassDnd(true);
         return;
       } catch (Exception e) {
         e.printStackTrace();
@@ -235,10 +210,7 @@ public class Utils {
         CHANNEL_NAME_ONGOING_CALL,
         NotificationManager.IMPORTANCE_HIGH);
       channel.setSound(null, null);
-      channel.enableVibration(false);
-      channel.enableLights(false);
-      channel.setBypassDnd(true);
-      notificationManager.createNotificationChannel(channel);
+      channel.enableVibration(true);
       notificationManager.createNotificationChannel(channel);
 
 

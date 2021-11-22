@@ -1,6 +1,9 @@
 package com.eyr.callkeep;
 
+import static com.eyr.callkeep.EyrCallBannerDisplayService.ACTION_DISMISS_BANNER;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.ACTION_START_CALL_BANNER;
 import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_ACCEPT_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_END_CALL;
 import static com.eyr.callkeep.EyrCallBannerDisplayService.PAYLOAD;
 import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_DECLINE_CALL;
 import static com.eyr.callkeep.Utils.getJsBackgroundPayload;
@@ -51,7 +54,6 @@ public class IncomingCallActivity extends AppCompatActivity {
     @Override
     public void onClick(View v) {
       reactToCall((ReactApplication) getApplication(), EVENT_DECLINE_CALL,null);
-      finish();
     }
   };
 
@@ -95,6 +97,8 @@ public class IncomingCallActivity extends AppCompatActivity {
     tvDecline.setText(String.valueOf(payload.get("declineTitle")));
   }
 
+  @Override
+  public void onBackPressed() {
 
-
+  }
 }

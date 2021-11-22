@@ -69,7 +69,7 @@ public class CallPlayer {
           stop();
         }
       }
-    }, 30000);
+    }, 120000);
   }
 
   private void stopMusic() {
@@ -84,15 +84,20 @@ public class CallPlayer {
     }
 
     AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-    if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
-      return;
+    if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE || audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
+          } else {
+            vibrator.vibrate(pattern, 0);
+          }
+        }
+      });
+
     }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
-    } else {
-      vibrator.vibrate(pattern, 0);
-    }
   }
 
   private void stopVibrate() {
