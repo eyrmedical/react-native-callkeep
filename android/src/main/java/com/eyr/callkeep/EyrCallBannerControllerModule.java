@@ -1,15 +1,17 @@
 package com.eyr.callkeep;
 
 import static com.eyr.callkeep.EyrCallBannerDisplayService.ACTION_SHOW_ONGOING_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.CHANNEL_ID_ONGOING_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.CHANNEL_NAME_ONGOING_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_ACCEPT_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_DECLINE_CALL;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_END_CALL;
 import static com.eyr.callkeep.EyrCallBannerDisplayService.PAYLOAD;
 import static com.eyr.callkeep.EyrCallBannerDisplayService.CHANNEL_ID_INCOMING_CALL;
 import static com.eyr.callkeep.EyrCallBannerDisplayService.CHANNEL_NAME_INCOMING_CALL;
 import static com.eyr.callkeep.EyrCallBannerDisplayService.ACTION_START_CALL_BANNER;
-import static com.facebook.react.bridge.UiThreadUtil.runOnUiThread;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,7 +52,7 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void startCallBanner(@Nullable ReadableMap callBannerPayload) {
+  public void startCallNotificationService(@Nullable ReadableMap callBannerPayload) {
     Intent intent = new Intent(reactContext.getApplicationContext(), EyrCallBannerDisplayService.class);
     intent.setAction(ACTION_START_CALL_BANNER);
     intent.putExtra(PAYLOAD, callBannerPayload.toHashMap());
@@ -58,7 +60,7 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void stopCallBanner() {
+  public void stopNotificationService() {
     Intent intent = new Intent(reactContext.getApplicationContext(), EyrCallBannerDisplayService.class);
     reactContext.getApplicationContext().stopService(intent);
   }
@@ -83,8 +85,16 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
   @Override
   public Map<String, Object> getConstants() {
     HashMap<String, Object> constants = new HashMap<>();
-    constants.put("CALL_INCOMING_CHANNEL_NAME", CHANNEL_NAME_INCOMING_CALL);
-    constants.put("CALL_INCOMING_CHANNEL_ID", CHANNEL_ID_INCOMING_CALL);
+    constants.put("CHANNEL_NAME_INCOMING_CALL", CHANNEL_NAME_INCOMING_CALL);
+    constants.put("CHANNEL_ID_INCOMING_CALL", CHANNEL_ID_INCOMING_CALL);
+    constants.put("CHANNEL_ID_ONGOING_CALL", CHANNEL_ID_ONGOING_CALL);
+    constants.put("CHANNEL_NAME_ONGOING_CALL", CHANNEL_NAME_ONGOING_CALL);
+
+
+    constants.put("EVENT_ACCEPT_CALL", EVENT_ACCEPT_CALL);
+    constants.put("EVENT_DECLINE_CALL", EVENT_DECLINE_CALL);
+    constants.put("EVENT_END_CALL", EVENT_END_CALL);
+
 
     constants.put("PRIORITY_MAX", NotificationCompat.PRIORITY_MAX);
     constants.put("PRIORITY_HIGH", NotificationCompat.PRIORITY_HIGH);

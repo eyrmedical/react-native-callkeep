@@ -153,7 +153,7 @@ public class EyrCallBannerDisplayService extends Service {
           pendingDismissBannerIntent).build())
         .setDefaults(Notification.DEFAULT_LIGHTS)
         .setFullScreenIntent(openIncomingCallScreenPendingIntent, true)
-        //.setPriority(NotificationCompat.PRIORITY_HIGH)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setCategory(Notification.CATEGORY_CALL)
         .setOngoing(true);
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -187,9 +187,8 @@ public class EyrCallBannerDisplayService extends Service {
         .setCategory(Notification.CATEGORY_CALL)
         .setAutoCancel(false)
         .setOngoing(true)
+        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         .setSilent(true);
-//    NotificationManager notificationManager = getSystemService(NotificationManager.class);
-//    notificationManager.notify(ONGOING_CALL_NOTIFICATION_ID,notificationBuilder.build());
     startForeground(ONGOING_CALL_NOTIFICATION_ID, notificationBuilder.build());
   }
 }
