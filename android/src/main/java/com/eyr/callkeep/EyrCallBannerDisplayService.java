@@ -39,8 +39,8 @@ public class EyrCallBannerDisplayService extends Service {
 
   public static final String CHANNEL_NAME_INCOMING_CALL = "Incoming Call notification";
   public static final String CHANNEL_NAME_ONGOING_CALL = "Ongoing Call notification";
-  public static final String CHANNEL_ID_INCOMING_CALL = "com.eyr.callkeep.incoming_call_new";
-  public static final String CHANNEL_ID_ONGOING_CALL = "com.eyr.callkeep.ongoing_call_new";
+  public static final String CHANNEL_ID_INCOMING_CALL = "com.eyr.callkeep.incoming_call_really_new";
+  public static final String CHANNEL_ID_ONGOING_CALL = "com.eyr.callkeep.ongoing_call_new_really_new";
 
   public static final String PAYLOAD = "PAYLOAD";
 

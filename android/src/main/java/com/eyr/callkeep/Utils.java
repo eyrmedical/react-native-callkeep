@@ -192,25 +192,27 @@ public class Utils {
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
         .setUsage(AudioAttributes.USAGE_NOTIFICATION)
         .build();
+
       try {
         channel = notificationManager.getNotificationChannel(CHANNEL_ID_INCOMING_CALL);
+        channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
+        channel.setSound(soundUri, audioAttributes);
+        channel.enableVibration(false);
+        channel.enableLights(false);
+        channel.setBypassDnd(true);
+        return;
       } catch (Exception e) {
-        channel = new NotificationChannel(CHANNEL_ID_INCOMING_CALL,
-          CHANNEL_NAME_INCOMING_CALL,
-          NotificationManager.IMPORTANCE_HIGH);
-        notificationManager.createNotificationChannel(channel);
+        e.printStackTrace();
       }
-      if (channel==null) {
-        channel = new NotificationChannel(CHANNEL_ID_INCOMING_CALL,
-          CHANNEL_NAME_INCOMING_CALL,
-          NotificationManager.IMPORTANCE_HIGH);
-        notificationManager.createNotificationChannel(channel);
-      }
-      channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
+      channel = new NotificationChannel(CHANNEL_ID_INCOMING_CALL,
+        CHANNEL_NAME_INCOMING_CALL,
+        NotificationManager.IMPORTANCE_HIGH);
       channel.setSound(soundUri, audioAttributes);
       channel.enableVibration(false);
       channel.enableLights(false);
       channel.setBypassDnd(true);
+      notificationManager.createNotificationChannel(channel);
+
     }
   }
 
@@ -221,23 +223,25 @@ public class Utils {
       NotificationChannel channel;
       try {
         channel = notificationManager.getNotificationChannel(CHANNEL_ID_ONGOING_CALL);
+        channel.setSound(null, null);
+        channel.enableVibration(false);
+        channel.enableLights(false);
+        channel.setBypassDnd(true);
+        return;
       } catch (Exception e) {
-        channel = new NotificationChannel(CHANNEL_ID_ONGOING_CALL,
-          CHANNEL_NAME_ONGOING_CALL,
-          NotificationManager.IMPORTANCE_HIGH);
-        notificationManager.createNotificationChannel(channel);
+        e.printStackTrace();
       }
-      if (channel==null) {
-        channel = new NotificationChannel(CHANNEL_ID_ONGOING_CALL,
-          CHANNEL_NAME_ONGOING_CALL,
-          NotificationManager.IMPORTANCE_HIGH);
-        notificationManager.createNotificationChannel(channel);
-      }
-      channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
+      channel = new NotificationChannel(CHANNEL_ID_ONGOING_CALL,
+        CHANNEL_NAME_ONGOING_CALL,
+        NotificationManager.IMPORTANCE_HIGH);
       channel.setSound(null, null);
       channel.enableVibration(false);
       channel.enableLights(false);
       channel.setBypassDnd(true);
+      notificationManager.createNotificationChannel(channel);
+      notificationManager.createNotificationChannel(channel);
+
+
     }
   }
 
