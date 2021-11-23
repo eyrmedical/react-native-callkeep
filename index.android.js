@@ -1,6 +1,10 @@
-import {NativeModules} from 'react-native';
+import { NativeModules, NativeEventEmitter } from 'react-native';
 
-const RNBackgroundCallBannerModule = NativeModules.BackgroundCallBannerModule;
+const EYRCallKeepModule = NativeModules.EyrCallBannerControllerModule;
+const eventEmitter = new NativeEventEmitter(EYRCallKeepModule);
 
-export const CONSTANTS = RNBackgroundCallBannerModule.getConstants();
-export const { startCallBanner, stopCallBanner } = RNBackgroundCallBannerModule;
+export const CONSTANTS = EYRCallKeepModule.getConstants();
+
+export const emit = eventEmitter.emit.bind(eventEmitter);
+export const addEventListener = eventEmitter.addListener.bind(eventEmitter);
+export default EYRCallKeepModule;
