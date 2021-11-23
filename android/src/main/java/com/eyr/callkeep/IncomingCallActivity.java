@@ -53,7 +53,7 @@ public class IncomingCallActivity extends AppCompatActivity {
   private final View.OnClickListener onDecline = new View.OnClickListener() {
     @Override
     public void onClick(View v) {
-      Utils.backToForeground(getApplicationContext(),  getJsPayload(payload));
+      Utils.backToForeground(getApplicationContext());
       reactToCall((ReactApplication) getApplication(), EVENT_DECLINE_CALL,null);
       finish();
     }

@@ -97,15 +97,14 @@ public class Utils {
    * Back main activity to foreground.
    */
   public static void backToForeground(Context applicationContext,@Nullable Bundle bundle) {
-        /*
-        val mainActivityIntent = Intent(context, getMainActivityClass(context)).apply {
-            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(mainActivityIntent)
-        */
-
     Intent focusIntent = getMainActivityIntent(applicationContext);
     focusIntent.putExtra(INITIAL_CALL_STATE_PROP_NAME, bundle);
+    applicationContext.startActivity(focusIntent);
+
+  }
+
+  public static void backToForeground(Context applicationContext) {
+    Intent focusIntent = getMainActivityIntent(applicationContext);
     applicationContext.startActivity(focusIntent);
 
   }
@@ -117,18 +116,6 @@ public class Utils {
     focusIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
     focusIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     return focusIntent;
-  }
-
-  public static Class getMainActivity(Context context) {
-    String packageName = context.getPackageName();
-    Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
-    String className = launchIntent.getComponent().getClassName();
-    try {
-      return Class.forName(className);
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-      return null;
-    }
   }
 
   public static void reactToCall(ReactApplication application, String event, WritableMap payload) {

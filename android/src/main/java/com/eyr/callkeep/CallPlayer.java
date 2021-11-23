@@ -1,7 +1,9 @@
 package com.eyr.callkeep;
 
 import android.content.Context;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -11,11 +13,12 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
 
+import java.io.IOException;
+
 public class CallPlayer {
 
-
-  private Ringtone defaultRingtone = null;
   private Vibrator vibrator = null;
+  private MediaPlayer ringtonePlayer = null;
   private final long[] pattern = { 0L, 1000L, 800L};
   private boolean isPlaying = false;
 
@@ -43,38 +46,66 @@ public class CallPlayer {
     isPlaying = false;
   }
 
-  public Boolean isPlaying() {
-    return isPlaying;
-  }
-
   private void playMusic(Context context) {
     AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
       return;
     }
     Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE);
-    defaultRingtone = RingtoneManager.getRingtone(context, defaultRingtoneUri);
+    ringtonePlayer = new MediaPlayer();
+    ringtonePlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+      @Override
+      public void onPrepared(MediaPlayer mp) {
+        try {
+          ringtonePlayer.start();
+        } catch (Throwable e) {
+          e.printStackTrace();
+        }
+        ringtonePlayer.setLooping(true);
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      defaultRingtone.setVolume(audioManager.getStreamVolume(AudioManager.STREAM_RING));
+      }
+    });
+    if (isHeadsetOn(audioManager)) {
+      ringtonePlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+    } else {
+      ringtonePlayer.setAudioStreamType(AudioManager.STREAM_RING);
     }
-    defaultRingtone.play();
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      defaultRingtone.setLooping(true);
+    try {
+      ringtonePlayer.setDataSource(context, defaultRingtoneUri);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
+    ringtonePlayer.prepareAsync();
+
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
-        if (defaultRingtone!=null && defaultRingtone.isPlaying()) {
-          stop();
-        }
+        stop();
       }
     }, 120000);
   }
 
+  private boolean isHeadsetOn(AudioManager am) {
+    if (am == null)
+      return false;
+
+    AudioDeviceInfo[] devices = am.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+
+    for (AudioDeviceInfo device : devices) {
+      if (device.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET
+        || device.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES
+        || device.getType() == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP
+        || device.getType() == AudioDeviceInfo.TYPE_BLUETOOTH_SCO) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private void stopMusic() {
-    if (defaultRingtone!=null && defaultRingtone.isPlaying()) {
-      defaultRingtone.stop();
+    if (ringtonePlayer!=null && ringtonePlayer.isPlaying()) {
+      ringtonePlayer.stop();
+      ringtonePlayer.release();
     }
   }
 
