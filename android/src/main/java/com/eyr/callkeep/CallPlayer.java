@@ -48,7 +48,7 @@ public class CallPlayer {
 
   private void playMusic(Context context) {
     AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-    if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
+    if (audioManager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL) {
       return;
     }
     Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE);
