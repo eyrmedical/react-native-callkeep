@@ -65,17 +65,6 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
     reactContext.getApplicationContext().stopService(intent);
   }
 
-  @ReactMethod
-  public void hideOnLockScreen(){
-    Objects.requireNonNull(reactContext.getCurrentActivity()).runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        Utils.showOnLockscreen(reactContext.getCurrentActivity(),false);
-      }
-    });
-
-  }
-
   @Override
   public boolean hasConstants() {
     return true;

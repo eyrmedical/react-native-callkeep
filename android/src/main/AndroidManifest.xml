@@ -7,11 +7,12 @@
   <uses-permission
     android:name="android.permission.READ_PHONE_STATE"
     android:maxSdkVersion="29" />
-  <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
   <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
 
   <uses-permission android:name="android.permission.VIBRATE" />
   <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+
 
   <application>
     <activity
@@ -21,11 +22,7 @@
       android:showOnLockScreen="true" />
     <service
       android:name=".EyrCallBannerDisplayService"
-      android:foregroundServiceType="phoneCall"
-      android:directBootAware="true">
-      <intent-filter>
-        <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-      </intent-filter>
+      android:foregroundServiceType="phoneCall">
     </service>
   </application>
 
