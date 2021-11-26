@@ -12,6 +12,7 @@ import static com.eyr.callkeep.EyrCallBannerDisplayService.CHANNEL_NAME_INCOMING
 import static com.eyr.callkeep.EyrCallBannerDisplayService.ACTION_START_CALL_BANNER;
 
 import android.content.Intent;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -63,6 +64,34 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
   public void stopNotificationService() {
     Intent intent = new Intent(reactContext.getApplicationContext(), EyrCallBannerDisplayService.class);
     reactContext.getApplicationContext().stopService(intent);
+  }
+
+  @ReactMethod
+  public Boolean isMIUI() {
+    return XiaomiUtilities.isMIUI();
+  }
+
+  @ReactMethod
+  public Boolean hasMIUIShowWhenLockPermission() {
+    return XiaomiUtilities.isCustomPermissionGranted(
+      reactContext.getApplicationContext(),
+      XiaomiUtilities.OP_SHOW_WHEN_LOCKED);
+  }
+
+  @ReactMethod
+  public void openMIUIPermissionScreen() {
+    try {
+      Intent intent = XiaomiUtilities.getPermissionManagerIntent(reactContext.getApplicationContext());
+      reactContext.startActivity(intent);
+    } catch (Exception e) {
+      try {
+        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(Uri.parse("package:" + reactContext.getApplicationContext().getPackageName()));
+        reactContext.startActivity(intent);
+      } catch (Exception e1) {
+        e1.printStackTrace();
+      }
+    }
   }
 
   @Override
