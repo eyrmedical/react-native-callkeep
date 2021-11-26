@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.provider.Settings;
 import android.util.Log;
 
 import java.io.IOException;
@@ -52,20 +53,7 @@ public class CallPlayer {
     if (audioManager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL) {
       return;
     }
-    Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE);
-    ringtonePlayer = new MediaPlayer();
-    ringtonePlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-      @Override
-      public void onPrepared(MediaPlayer mp) {
-        try {
-          ringtonePlayer.start();
-        } catch (Throwable e) {
-          e.printStackTrace();
-        }
-        ringtonePlayer.setLooping(true);
-
-      }
-    });
+    Uri defaultRingtoneUri = Settings.System.DEFAULT_RINGTONE_URI;
     AudioAttributes.Builder audioAttributeBuilder = new AudioAttributes.Builder();
     audioAttributeBuilder.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE);
     if (isHeadsetOn(audioManager)) {
@@ -73,14 +61,24 @@ public class CallPlayer {
     } else {
       audioAttributeBuilder.setLegacyStreamType(AudioManager.STREAM_RING);
     }
+    if (ringtonePlayer!=null) {
+      ringtonePlayer.stop();
+      ringtonePlayer.reset();
+    }
+    ringtonePlayer = new MediaPlayer();
+    ringtonePlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+      @Override
+      public void onPrepared(MediaPlayer mp) {
+        mp.start();
+        mp.setLooping(true);
+      }
+    });
     try {
-      ringtonePlayer.setAudioAttributes(audioAttributeBuilder.build());
-      ringtonePlayer.setDataSource(context, defaultRingtoneUri);
-    } catch (Exception e) {
+      ringtonePlayer.setDataSource(context,defaultRingtoneUri);
+      ringtonePlayer.prepareAsync();
+    } catch (IOException e) {
       e.printStackTrace();
     }
-    ringtonePlayer.prepareAsync();
-
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
@@ -109,7 +107,6 @@ public class CallPlayer {
   private void stopMusic() {
     if (ringtonePlayer!=null && ringtonePlayer.isPlaying()) {
       ringtonePlayer.stop();
-      ringtonePlayer.release();
     }
   }
 
