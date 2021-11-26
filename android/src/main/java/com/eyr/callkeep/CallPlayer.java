@@ -1,6 +1,7 @@
 package com.eyr.callkeep;
 
 import android.content.Context;
+import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -65,14 +66,17 @@ public class CallPlayer {
 
       }
     });
+    AudioAttributes.Builder audioAttributeBuilder = new AudioAttributes.Builder();
+    audioAttributeBuilder.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE);
     if (isHeadsetOn(audioManager)) {
-      ringtonePlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+      audioAttributeBuilder.setLegacyStreamType(AudioManager.STREAM_VOICE_CALL);
     } else {
-      ringtonePlayer.setAudioStreamType(AudioManager.STREAM_RING);
+      audioAttributeBuilder.setLegacyStreamType(AudioManager.STREAM_RING);
     }
     try {
+      ringtonePlayer.setAudioAttributes(audioAttributeBuilder.build());
       ringtonePlayer.setDataSource(context, defaultRingtoneUri);
-    } catch (IOException e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
     ringtonePlayer.prepareAsync();
