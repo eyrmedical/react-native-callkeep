@@ -1,4 +1,4 @@
-import RNCallKeep, { CONSTANTS } from "./index";
+import RNCallKeep from "./index";
 
-export { CONSTANTS };
+export * from "./index";
 export default RNCallKeep;

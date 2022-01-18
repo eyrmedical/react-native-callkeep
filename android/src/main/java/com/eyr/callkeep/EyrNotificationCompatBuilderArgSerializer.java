@@ -1,6 +1,7 @@
 package com.eyr.callkeep;
 
-import android.app.Notification;
+import static com.eyr.callkeep.EyrCallBannerDisplayService.CHANNEL_ID_INCOMING_CALL;
+
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -12,7 +13,7 @@ import java.util.List;
 
 public class EyrNotificationCompatBuilderArgSerializer {
 
-  private HashMap<String, Object> mArgs;
+  private final HashMap<String, Object> mArgs;
 
   public EyrNotificationCompatBuilderArgSerializer(HashMap<String, Object> args) {
     mArgs = args;
@@ -29,13 +30,6 @@ public class EyrNotificationCompatBuilderArgSerializer {
     @Nullable Boolean ongoing = (Boolean) mArgs.get("ongoing");
     if (ongoing != null) {
       builder.setAutoCancel(ongoing);
-    }
-  }
-
-  private void maybeAddPriority(NotificationCompat.Builder builder) {
-    Double priority = (Double) mArgs.get("priority");
-    if (priority != null) {
-      builder.setPriority(priority.intValue());
     }
   }
 
@@ -70,8 +64,6 @@ public class EyrNotificationCompatBuilderArgSerializer {
   private void maybeSetSound(Context context, NotificationCompat.Builder builder) {
     String sound = (String) mArgs.get("sound");
     if (sound != null) {
-      SoundResolver resolver = new SoundResolver(context);
-      builder.setSound(resolver.resolve(sound));
     }
   }
 
@@ -108,18 +100,27 @@ public class EyrNotificationCompatBuilderArgSerializer {
   }
 
   @Nullable
+  public static String parseEndCallBtnTitle(HashMap<String, Object> args) {
+    return (String) args.get("endCallTitle");
+  }
+
+  @Nullable
   public static String parseDeclineBtnTitle(HashMap<String, Object> args) {
     return (String) args.get("declineTitle");
   }
 
-  public NotificationCompat.Builder createNotificationFromContext(Context context) {
+  public NotificationCompat.Builder createNotificationFromContext(Context context,@Nullable String channelId) {
     @NonNull String notificationChannelId = (String) mArgs.get("channelId");
+    if (notificationChannelId==null && channelId!=null) {
+      notificationChannelId = channelId;
+    }
+    if (notificationChannelId==null) {
+      notificationChannelId = CHANNEL_ID_INCOMING_CALL;
+    }
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, notificationChannelId);
-    builder
-      .setSmallIcon(R.mipmap.ic_launcher);
+    builder.setSmallIcon(R.drawable.ic_notification);
     maybeAddAutoCancel(builder);
     maybeAddOngoing(builder);
-    maybeAddPriority(builder);
     maybeAddCategory(builder);
     maybeAddVisibility(builder);
     maybeAddTitle(builder);

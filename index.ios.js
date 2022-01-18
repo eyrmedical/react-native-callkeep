@@ -3,7 +3,7 @@ import { NativeModules, NativeEventEmitter } from 'react-native';
 const EYRCallKeepModule = NativeModules.EYRCallKeep;
 const eventEmitter = new NativeEventEmitter(EYRCallKeepModule);
 
-export const emit = (eventName, payload) => eventEmitter.emit(eventName, payload);
+export const emit = eventEmitter.emit.bind(eventEmitter);
 
 const listeners = {
     answerCall: handler => eventEmitter.addListener('EYRCallKeepPerformAnswerCallAction', handler),
