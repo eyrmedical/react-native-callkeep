@@ -51,7 +51,7 @@ public class EyrCallBannerDisplayService extends Service {
 
   public static final String NOTIFICATION_EXTRA_PAYLOAD = "NOTIFICATION_EXTRA_PAYLOAD";
 
-  private CallPlayer callPlayer = new CallPlayer();;
+  private CallPlayer callPlayer = new CallPlayer();
 
   @Nullable
   @Override
@@ -63,7 +63,7 @@ public class EyrCallBannerDisplayService extends Service {
   public void onDestroy() {
     super.onDestroy();
     if (callPlayer!=null) {
-      callPlayer.stop();
+      callPlayer.stop(this);
     }
     stopIncomingCallActivity();
   }
@@ -85,35 +85,37 @@ public class EyrCallBannerDisplayService extends Service {
     if (callPlayer == null) {
       callPlayer = new CallPlayer();
     }
-    String action = intent.getAction();
+    if (intent != null) {
+      String action = intent.getAction();
 
-    final HashMap<String, Object> payload = (HashMap<String, Object>) intent.getSerializableExtra(PAYLOAD);
-    if (action.equals(ACTION_START_CALL_BANNER)) {
-      prepareIncomingNotification(intent, payload);
-    }
+      final HashMap<String, Object> payload = (HashMap<String, Object>) intent.getSerializableExtra(PAYLOAD);
+      if (action.equals(ACTION_START_CALL_BANNER)) {
+        prepareIncomingNotification(intent, payload);
+      }
 
-    if (action.equals(ACTION_DISMISS_BANNER)) {
+      if (action.equals(ACTION_DISMISS_BANNER)) {
         reactToCall((ReactApplication) getApplication(), EVENT_DECLINE_CALL, null);
-    }
+      }
 
-    if (action.equals(ACTION_ACCEPT_CALL)) {
-      Utils.backToForeground(getApplicationContext(),getJsPayload(payload));
-      reactToCall((ReactApplication) getApplication(), EVENT_ACCEPT_CALL, getJsBackgroundPayload(payload));
-      if (callPlayer!=null) {
-        callPlayer.stop();
+      if (action.equals(ACTION_ACCEPT_CALL)) {
+        Utils.backToForeground(getApplicationContext(), getJsPayload(payload));
+        reactToCall((ReactApplication) getApplication(), EVENT_ACCEPT_CALL, getJsBackgroundPayload(payload));
+        if (callPlayer != null) {
+          callPlayer.stop(this);
+        }
+      }
+
+      if (action.equals(ACTION_END_CALL)) {
+        reactToCall((ReactApplication) getApplication(), EVENT_END_CALL, getJsBackgroundPayload(payload));
+        stopForeground(true);
+      }
+
+
+      if (action.equals(ACTION_SHOW_ONGOING_CALL)) {
+        prepareOngoingNotification(payload);
       }
     }
-
-    if (action.equals(ACTION_END_CALL)) {
-      reactToCall((ReactApplication) getApplication(), EVENT_END_CALL, getJsBackgroundPayload(payload));
-      stopForeground(true);
-    }
-
-
-    if (action.equals(ACTION_SHOW_ONGOING_CALL)) {
-      prepareOngoingNotification(payload);
-    }
-
+    super.onStartCommand(intent, flags, startId);
     return START_STICKY;
   }
 

@@ -1,96 +1,99 @@
 package com.eyr.callkeep;
 
 import android.content.Context;
-import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.provider.Settings;
 import android.util.Log;
 
 import java.io.IOException;
 
-public class CallPlayer {
+public class CallPlayer implements AudioManager.OnAudioFocusChangeListener {
 
   private Vibrator vibrator = null;
   private MediaPlayer ringtonePlayer = null;
   private final long[] pattern = { 0L, 1000L, 800L};
   private boolean isPlaying = false;
-
-  private final Handler handler = new Handler();
+  private boolean hasAudioFocus;
+  protected static final String TAG = "CallPlayer";
 
   public void play(Context context) {
     if(isPlaying) {
-      stop();
+      stop(context);
     }
     if (vibrator == null) {
       vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
     }
-    playVibrate(context);
-    playMusic(context);
-    isPlaying = true;
-  }
-
-  public void stop() {
-    if(!isPlaying) {
+    AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    boolean needRing = am.getRingerMode() != AudioManager.RINGER_MODE_SILENT;
+    if (!needRing) {
       return;
-    }
-
-    stopMusic();
-    stopVibrate();
-    isPlaying = false;
-  }
-
-  private void playMusic(Context context) {
-    AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-    if (audioManager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL) {
-      return;
-    }
-    Uri defaultRingtoneUri = Settings.System.DEFAULT_RINGTONE_URI;
-    AudioAttributes.Builder audioAttributeBuilder = new AudioAttributes.Builder();
-    audioAttributeBuilder.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE);
-    if (isHeadsetOn(audioManager)) {
-      audioAttributeBuilder.setLegacyStreamType(AudioManager.STREAM_VOICE_CALL);
-    } else {
-      audioAttributeBuilder.setLegacyStreamType(AudioManager.STREAM_RING);
     }
     if (ringtonePlayer!=null) {
       ringtonePlayer.stop();
       ringtonePlayer.reset();
     }
     ringtonePlayer = new MediaPlayer();
-    ringtonePlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-      @Override
-      public void onPrepared(MediaPlayer mp) {
-        mp.start();
-        mp.setLooping(true);
+    ringtonePlayer.setOnPreparedListener(mediaPlayer -> {
+      try {
+        ringtonePlayer.start();
+        isPlaying = true;
+      } catch (Throwable e) {
+        Log.e(TAG, "ringtonePlayer.start() failed", e);
       }
     });
+    ringtonePlayer.setLooping(true);
+    if (isHeadsetOn(am)) {
+      ringtonePlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+    } else {
+      ringtonePlayer.setAudioStreamType(AudioManager.STREAM_RING);
+      am.requestAudioFocus(this, AudioManager.STREAM_RING, AudioManager.AUDIOFOCUS_GAIN);
+    }
     try {
-      ringtonePlayer.setDataSource(context,defaultRingtoneUri);
+      ringtonePlayer.setDataSource(context, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
       ringtonePlayer.prepareAsync();
     } catch (IOException e) {
-      e.printStackTrace();
-    }
-    handler.postDelayed(new Runnable() {
-      @Override
-      public void run() {
-        stop();
+      Log.e(TAG, "ringtonePlayer.prepareAsync() failed", e);
+      if (ringtonePlayer != null) {
+        ringtonePlayer.release();
+        ringtonePlayer = null;
       }
-    }, 120000);
+    }
+    if(!vibrator.hasVibrator()) {
+      return;
+    }
+
+    if (am.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE || am.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
+      } else {
+        vibrator.vibrate(pattern, 0);
+      }
+    }
+  }
+
+  public void stop(Context context) {
+    if(!isPlaying) {
+      return;
+    }
+    AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    if (ringtonePlayer != null && ringtonePlayer.isPlaying()) {
+      ringtonePlayer.stop();
+      if (hasAudioFocus) {
+        am.abandonAudioFocus(this);
+      }
+    }
+    if (vibrator!=null) {
+      vibrator.cancel();
+    }
+    isPlaying = false;
   }
 
   private boolean isHeadsetOn(AudioManager am) {
-    if (am == null)
-      return false;
-
     AudioDeviceInfo[] devices = am.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
 
     for (AudioDeviceInfo device : devices) {
@@ -104,38 +107,7 @@ public class CallPlayer {
     return false;
   }
 
-  private void stopMusic() {
-    if (ringtonePlayer!=null && ringtonePlayer.isPlaying()) {
-      ringtonePlayer.stop();
-    }
+  public void onAudioFocusChange(int focusChange) {
+    hasAudioFocus = focusChange == AudioManager.AUDIOFOCUS_GAIN;
   }
-
-  private void playVibrate(Context context) {
-    if(vibrator==null || !vibrator.hasVibrator()) {
-      return;
-    }
-
-    AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-    if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE || audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
-          } else {
-            vibrator.vibrate(pattern, 0);
-          }
-        }
-      });
-
-    }
-
-  }
-
-  private void stopVibrate() {
-    if (vibrator!=null) {
-      vibrator.cancel();
-    }
-  }
-
 }
