@@ -56,7 +56,7 @@ public class CallPlayer implements AudioManager.OnAudioFocusChangeListener {
     try {
       ringtonePlayer.setDataSource(context, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
       ringtonePlayer.prepareAsync();
-    } catch (IOException e) {
+    } catch (Exception e) {
       Log.e(TAG, "ringtonePlayer.prepareAsync() failed", e);
       if (ringtonePlayer != null) {
         ringtonePlayer.release();
