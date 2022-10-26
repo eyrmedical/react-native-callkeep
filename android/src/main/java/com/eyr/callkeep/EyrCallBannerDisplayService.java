@@ -133,13 +133,13 @@ public class EyrCallBannerDisplayService extends Service {
 
 
     PendingIntent pendingDismissBannerIntent = PendingIntent.getService(getApplicationContext(), 0,
-      dismissBannerIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+      dismissBannerIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
     PendingIntent acceptCallPendingIntent = PendingIntent.getService(getApplicationContext(), 0,
-      acceptCallAndOpenApp, PendingIntent.FLAG_UPDATE_CURRENT);
+      acceptCallAndOpenApp, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
     PendingIntent openIncomingCallScreenPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
-      openIncomingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT);
+      openIncomingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
     openIncomingCallScreen.addFlags(FLAG_ACTIVITY_NEW_TASK);
     NotificationCompat.Builder notificationBuilder =
@@ -169,12 +169,12 @@ public class EyrCallBannerDisplayService extends Service {
   private void prepareOngoingNotification(HashMap<String, Object> payload) {
     Intent openOngoingCallScreen = getMainActivityIntent(this);
     PendingIntent openOngoingCallScreenPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
-      openOngoingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT);
+      openOngoingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
     Intent endCallOpenApp = new Intent(this, getClass());
     endCallOpenApp.setAction(ACTION_END_CALL);
     PendingIntent endCallPendingIntent = PendingIntent.getService(getApplicationContext(), 0,
-      endCallOpenApp, PendingIntent.FLAG_UPDATE_CURRENT);
+      endCallOpenApp, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
     NotificationCompat.Builder notificationBuilder =
       new EyrNotificationCompatBuilderArgSerializer(payload)
