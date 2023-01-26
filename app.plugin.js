@@ -136,19 +136,12 @@ function withCallkeepActivity(config) {
             }
             if (!content.includes("public void onNewIntent(Intent intent) {")) {
                 content = content.replace(/}\n$/, onNewIntent + "}\n");
-            } else {
-                WarningAggregator.addWarningAndroid(
-                    "react-native-callkeep",
-                    "Cannot automatically configure MainActivity if it's not java."
-                );
             }
             config.modResults.contents = content;
         } else {
             WarningAggregator.addWarningAndroid(
                 "react-native-callkeep",
-                "Cannot automatically configure MainActivity if it's not java. \n" +
-                "Add it this manually \n" +
-                onNewIntent
+                "Cannot automatically configure MainActivity if it's not java."
             );
         }
         return config;
