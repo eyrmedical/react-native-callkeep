@@ -9,7 +9,7 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
 
-@interface RCT_EXTERN_MODULE(EYRCallKeep, RCTEventEmitter)
+@interface RCT_EXTERN_MODULE(RNCallKeep, RCTEventEmitter)
 RCT_EXTERN_METHOD(setMutedCall:(NSString *)uuidString muted:(BOOL))
 RCT_EXTERN_METHOD(fulfillEndCallAction)
 RCT_EXTERN_METHOD(endCall:(NSString*)uuidString)

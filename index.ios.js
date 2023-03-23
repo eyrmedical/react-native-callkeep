@@ -1,15 +1,15 @@
 import { NativeModules, NativeEventEmitter } from 'react-native';
 
-const EYRCallKeepModule = NativeModules.EYRCallKeep;
-const eventEmitter = new NativeEventEmitter(EYRCallKeepModule);
+const RNCallKeepModule = NativeModules.RNCallKeep;
+const eventEmitter = new NativeEventEmitter(RNCallKeepModule);
 
 export const emit = eventEmitter.emit.bind(eventEmitter);
 
 const listeners = {
-    answerCall: handler => eventEmitter.addListener('EYRCallKeepPerformAnswerCallAction', handler),
-    endCall: handler => eventEmitter.addListener('EYRCallKeepPerformEndCallAction', handler),
-    didPerformSetMutedCallAction: handler => eventEmitter.addListener('EYRCallKeepDidPerformSetMutedCallAction', handler),
-    didLoadWithEvents: handler => eventEmitter.addListener('EYRCallKeepDidLoadWithEvents', handler),
+    answerCall: handler => eventEmitter.addListener('RNCallKeepPerformAnswerCallAction', handler),
+    endCall: handler => eventEmitter.addListener('RNCallKeepPerformEndCallAction', handler),
+    didPerformSetMutedCallAction: handler => eventEmitter.addListener('RNCallKeepDidPerformSetMutedCallAction', handler),
+    didLoadWithEvents: handler => eventEmitter.addListener('RNCallKeepDidLoadWithEvents', handler),
 };
 
 export const CONSTANTS = {
@@ -29,22 +29,22 @@ class RNCallKeep {
     }
 
     setMutedCall = (uuid, shouldMute) =>
-        EYRCallKeepModule.setMutedCall(uuid, shouldMute);
+        RNCallKeepModule.setMutedCall(uuid, shouldMute);
 
     fulfillAnswerCallAction = () => {
-        EYRCallKeepModule.fulfillAnswerCallAction();
+        RNCallKeepModule.fulfillAnswerCallAction();
     };
 
-    endCall = (uuid) => EYRCallKeepModule.endCall(uuid);
+    endCall = (uuid) => RNCallKeepModule.endCall(uuid);
 
     reportEndCallWithUUID = (uuid, reason) =>
-        EYRCallKeepModule.reportEndCallWithUUID(uuid, reason);
+        RNCallKeepModule.reportEndCallWithUUID(uuid, reason);
 
     fulfillEndCallAction = () => {
-        EYRCallKeepModule.fulfillEndCallAction();
+        RNCallKeepModule.fulfillEndCallAction();
     };
 
-    getInitialEvents = () => EYRCallKeepModule.getInitialEvents();
+    getInitialEvents = () => RNCallKeepModule.getInitialEvents();
 
     addEventListener = (type, handler) => {
         this._callkeepEventHandlers.set(type, listeners[type](handler));
