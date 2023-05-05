@@ -1,6 +1,6 @@
 {
   "name": "react-native-callkeep",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "React Native library that provides native bindings for receiving incoming calls",
   "main": "index.js",
   "repository": {
