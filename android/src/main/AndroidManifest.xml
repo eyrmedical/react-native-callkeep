@@ -5,8 +5,7 @@
 
   <uses-permission android:name="android.permission.CALL_PHONE" />
   <uses-permission
-    android:name="android.permission.READ_PHONE_STATE"
-    android:maxSdkVersion="30" />
+    android:name="android.permission.READ_PHONE_STATE"/>
   <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
 
   <uses-permission android:name="android.permission.VIBRATE" />
@@ -20,12 +19,14 @@
   <application>
     <activity
       android:name=".IncomingCallActivity"
-      android:exported="true"
+      android:exported="false"
       android:showWhenLocked="true"
+      android:turnScreenOn="true"
       android:excludeFromRecents="true"
       android:showOnLockScreen="true" />
     <service
-      android:name=".EyrCallBannerDisplayService"
+      android:name=".CallKeepService"
+      android:exported="false"
       android:excludeFromRecents="true"
       android:foregroundServiceType="phoneCall">
     </service>

@@ -1,12 +1,13 @@
 package com.eyr.callkeep;
 
-import static com.eyr.callkeep.EyrCallBannerDisplayService.ACTION_SHOW_ONGOING_CALL;
-import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_ACCEPT_CALL;
-import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_DECLINE_CALL;
-import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_END_CALL;
-import static com.eyr.callkeep.EyrCallBannerDisplayService.PAYLOAD;
-import static com.eyr.callkeep.EyrCallBannerDisplayService.ACTION_START_CALL_BANNER;
-
+import static com.eyr.callkeep.CallKeepService.ACTION_END_CALL;
+import static com.eyr.callkeep.CallKeepService.EVENT_ACCEPT_CALL;
+import static com.eyr.callkeep.CallKeepService.EVENT_DECLINE_CALL;
+import static com.eyr.callkeep.CallKeepService.EVENT_END_CALL;
+import static com.eyr.callkeep.CallKeepService.PAYLOAD;
+import static com.eyr.callkeep.CallKeepService.ACTION_DISPLAY_INCOMING_CALL;
+import static com.eyr.callkeep.CallKeepService.ACTION_DISPLAY_ONGOING_CALL;
+import static com.eyr.callkeep.Utils.getMainActivityIntent;
 import android.content.Intent;
 import android.net.Uri;
 
@@ -18,11 +19,11 @@ import com.facebook.react.bridge.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
+public class CallKeepModule extends ReactContextBaseJavaModule {
 
   private ReactApplicationContext reactContext;
 
-  public EyrCallBannerControllerModule(ReactApplicationContext reactContext) {
+  public CallKeepModule(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
   }
@@ -30,7 +31,7 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
   @NonNull
   @Override
   public String getName() {
-    return "EyrCallBannerControllerModule";
+    return "CallKeepModule";
   }
 
   @ReactMethod
@@ -39,24 +40,35 @@ public class EyrCallBannerControllerModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void startOngoingCallNotification(@Nullable ReadableMap callBannerPayload) {
-    Intent intent = new Intent(reactContext.getApplicationContext(), EyrCallBannerDisplayService.class);
-    intent.setAction(ACTION_SHOW_ONGOING_CALL);
-    intent.putExtra(PAYLOAD, callBannerPayload.toHashMap());
+  public void displayIncomingCall(@Nullable ReadableMap incomingCallParams) {
+    Intent intent = new Intent(reactContext.getApplicationContext(), CallKeepService.class);
+    intent.setAction(ACTION_DISPLAY_INCOMING_CALL);
+    if (incomingCallParams != null) {
+      intent.putExtra(PAYLOAD, incomingCallParams.toHashMap());
+    }
     reactContext.getApplicationContext().startService(intent);
   }
 
   @ReactMethod
-  public void startCallNotificationService(@Nullable ReadableMap callBannerPayload) {
-    Intent intent = new Intent(reactContext.getApplicationContext(), EyrCallBannerDisplayService.class);
-    intent.setAction(ACTION_START_CALL_BANNER);
-    intent.putExtra(PAYLOAD, callBannerPayload.toHashMap());
+  public void displayOngoingCall(@Nullable ReadableMap ongoingCallParams) {
+    Intent intent = new Intent(reactContext.getApplicationContext(), CallKeepService.class);
+    intent.setAction(ACTION_DISPLAY_ONGOING_CALL);
+    if (ongoingCallParams != null) {
+      intent.putExtra(PAYLOAD, ongoingCallParams.toHashMap());
+    }
     reactContext.getApplicationContext().startService(intent);
   }
 
   @ReactMethod
-  public void stopNotificationService() {
-    Intent intent = new Intent(reactContext.getApplicationContext(), EyrCallBannerDisplayService.class);
+  public void endCall() {
+    Intent intent = getMainActivityIntent(reactContext.getApplicationContext());
+    intent.setAction(ACTION_END_CALL);
+    reactContext.getApplicationContext().startActivity(intent);
+  }
+
+  @ReactMethod
+  public void dispose() {
+    Intent intent = new Intent(reactContext.getApplicationContext(), CallKeepService.class);
     reactContext.getApplicationContext().stopService(intent);
   }
 

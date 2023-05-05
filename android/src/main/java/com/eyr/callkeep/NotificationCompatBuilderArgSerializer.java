@@ -1,6 +1,6 @@
 package com.eyr.callkeep;
 
-import static com.eyr.callkeep.EyrCallBannerDisplayService.CHANNEL_ID_INCOMING_CALL;
+import static com.eyr.callkeep.CallKeepService.CHANNEL_ID_INCOMING_CALL;
 
 import android.content.Context;
 
@@ -11,11 +11,11 @@ import androidx.core.app.NotificationCompat;
 import java.util.HashMap;
 import java.util.List;
 
-public class EyrNotificationCompatBuilderArgSerializer {
+public class NotificationCompatBuilderArgSerializer {
 
   private final HashMap<String, Object> mArgs;
 
-  public EyrNotificationCompatBuilderArgSerializer(HashMap<String, Object> args) {
+  public NotificationCompatBuilderArgSerializer(HashMap<String, Object> args) {
     mArgs = args;
   }
 

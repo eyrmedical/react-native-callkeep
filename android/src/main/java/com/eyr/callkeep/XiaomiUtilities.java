@@ -1,6 +1,5 @@
 package com.eyr.callkeep;
 
-import android.annotation.TargetApi;
 import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
@@ -49,7 +48,6 @@ public class XiaomiUtilities {
   }
 
   @SuppressWarnings("JavaReflectionMemberAccess")
-  @TargetApi(19)
   public static boolean isCustomPermissionGranted(Context context,int permission) {
     try {
       AppOpsManager mgr = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);

@@ -1,14 +1,12 @@
 package com.eyr.callkeep;
 
-import static com.eyr.callkeep.EyrCallBannerDisplayService.ACTION_DISMISS_BANNER;
-import static com.eyr.callkeep.EyrCallBannerDisplayService.ACTION_START_CALL_BANNER;
-import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_ACCEPT_CALL;
-import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_END_CALL;
-import static com.eyr.callkeep.EyrCallBannerDisplayService.PAYLOAD;
-import static com.eyr.callkeep.EyrCallBannerDisplayService.EVENT_DECLINE_CALL;
-import static com.eyr.callkeep.Utils.getJsBackgroundPayload;
+import static com.eyr.callkeep.CallKeepService.ACTION_ACCEPT_CALL;
+import static com.eyr.callkeep.CallKeepService.ACTION_DECLINE_CALL;
+import static com.eyr.callkeep.CallKeepService.PAYLOAD;
+import static com.eyr.callkeep.CallKeepService.EVENT_DECLINE_CALL;
+import static com.eyr.callkeep.Utils.INITIAL_CALL_STATE_PROP_NAME;
 import static com.eyr.callkeep.Utils.getJsPayload;
-import static com.eyr.callkeep.Utils.reactToCall;
+import static com.eyr.callkeep.Utils.getMainActivityIntent;
 import static com.eyr.callkeep.Utils.showOnLockscreen;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,8 +21,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.react.ReactApplication;
-
 import java.util.HashMap;
 
 public class IncomingCallActivity extends AppCompatActivity {
@@ -35,7 +31,7 @@ public class IncomingCallActivity extends AppCompatActivity {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-      if(intent.getAction().equals(EVENT_DECLINE_CALL)){
+      if (intent.getAction().equals(EVENT_DECLINE_CALL)) {
         finish();
       }
     }
@@ -44,8 +40,12 @@ public class IncomingCallActivity extends AppCompatActivity {
   private final View.OnClickListener onAccept = new View.OnClickListener() {
     @Override
     public void onClick(View v) {
-      Utils.backToForeground(getApplicationContext(),  getJsPayload(payload));
-      reactToCall((ReactApplication) getApplication(), EVENT_ACCEPT_CALL, getJsBackgroundPayload(payload));
+      Intent acceptCallAndOpenAppIntent = getMainActivityIntent(getApplicationContext());
+      acceptCallAndOpenAppIntent.setAction(ACTION_ACCEPT_CALL);
+      payload = (HashMap<String, Object>) getIntent().getSerializableExtra(PAYLOAD);
+      acceptCallAndOpenAppIntent.putExtras(getIntent());
+      acceptCallAndOpenAppIntent.putExtra(INITIAL_CALL_STATE_PROP_NAME, getJsPayload(payload));
+      getApplicationContext().startActivity(acceptCallAndOpenAppIntent);
       finish();
     }
   };
@@ -53,8 +53,9 @@ public class IncomingCallActivity extends AppCompatActivity {
   private final View.OnClickListener onDecline = new View.OnClickListener() {
     @Override
     public void onClick(View v) {
-      Utils.backToForeground(getApplicationContext());
-      reactToCall((ReactApplication) getApplication(), EVENT_DECLINE_CALL,null);
+      Intent declineCallIntent = new Intent(getApplicationContext(), CallKeepService.class);
+      declineCallIntent.setAction(ACTION_DECLINE_CALL);
+      getApplicationContext().startService(declineCallIntent);
       finish();
     }
   };
@@ -74,8 +75,8 @@ public class IncomingCallActivity extends AppCompatActivity {
   }
 
   protected void onDestroy() {
-    super.onDestroy();
     mLocalBroadcastManager.unregisterReceiver(mBroadcastReceiver);
+    super.onDestroy();
   }
 
   @Override
@@ -92,7 +93,7 @@ public class IncomingCallActivity extends AppCompatActivity {
     ImageView btnDecline = findViewById(R.id.ivDeclineCall);
     btnAccept.setOnClickListener(onAccept);
     btnDecline.setOnClickListener(onDecline);
-    if (payload==null) return;
+    if (payload == null) return;
     tvName.setText(String.valueOf(payload.get("title")));
     tvDetail.setText(String.valueOf(payload.get("subtitle")));
     tvAccept.setText(String.valueOf(payload.get("acceptTitle")));

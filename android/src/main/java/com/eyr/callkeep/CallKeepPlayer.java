@@ -10,9 +10,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
 
-import java.io.IOException;
-
-public class CallPlayer implements AudioManager.OnAudioFocusChangeListener {
+public class CallKeepPlayer implements AudioManager.OnAudioFocusChangeListener {
 
   private Vibrator vibrator = null;
   private MediaPlayer ringtonePlayer = null;
