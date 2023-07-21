@@ -40,6 +40,8 @@ public class CallKeepService extends Service {
   public static final String ACTION_DECLINE_CALL = "ACTION_DECLINE_CALL";
   public static final String ACTION_DISPLAY_ONGOING_CALL = "ACTION_DISPLAY_ONGOING_CALL_NOTIFICATION";
   public static final String ACTION_END_CALL = "ACTION_END_CALL";
+
+  public static final String ACTION_END_CALL_FROM_NOTIFICATION = "ACTION_END_CALL_FROM_NOTIFICATION";
   public static final String EVENT_ACCEPT_CALL = "EVENT_ACCEPT_CALL";
   public static final String EVENT_DECLINE_CALL = "EVENT_DECLINE_CALL";
   public static final String EVENT_END_CALL = "EVENT_END_CALL";
@@ -119,8 +121,12 @@ public class CallKeepService extends Service {
         stopForeground(true);
       }
 
-      if (action.equals(ACTION_END_CALL)) {
+      if (action.equals(ACTION_END_CALL_FROM_NOTIFICATION)) {
         emitEventToJS(application, EVENT_END_CALL, null);
+        stopForeground(true);
+      }
+
+      if (action.equals(ACTION_END_CALL)) {
         stopForeground(true);
       }
 
@@ -215,10 +221,10 @@ public class CallKeepService extends Service {
     PendingIntent openOngoingCallScreenPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
       openOngoingCallScreen, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-    Intent endCallOpenApp = getMainActivityIntent(getApplicationContext());
-    endCallOpenApp.setAction(ACTION_END_CALL);
-    PendingIntent endCallPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
-      endCallOpenApp, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    Intent endCall = new Intent(this, getClass());
+    endCall.setAction(ACTION_END_CALL_FROM_NOTIFICATION);
+    PendingIntent endCallPendingIntent = PendingIntent.getService(getApplicationContext(), 0,
+      endCall, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
     return new NotificationCompatBuilderArgSerializer(payload)
         .createNotificationFromContext(this,CHANNEL_ID_ONGOING_CALL)
