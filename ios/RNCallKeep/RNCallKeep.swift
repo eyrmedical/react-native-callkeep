@@ -98,9 +98,11 @@ public class RNCallKeep: RCTEventEmitter {
     fileprivate func configureAudioSession() {
         // See https://forums.developer.apple.com/thread/64544
         let audioSession = AVAudioSession.sharedInstance()
+        let audioOptions = AVAudioSession.CategoryOptions.allowBluetooth.rawValue |
+            AVAudioSession.CategoryOptions.allowBluetoothA2DP.rawValue |
+            AVAudioSession.CategoryOptions.defaultToSpeaker.rawValue
         do {
-            try audioSession.setCategory(.playAndRecord, options: [.allowBluetooth, .allowBluetoothA2DP])
-            try audioSession.setMode(.default)
+            try audioSession.setCategory(AVAudioSession.Category.playAndRecord, mode: AVAudioSession.Mode.videoChat, options: AVAudioSession.CategoryOptions(rawValue: audioOptions))
             try audioSession.setPreferredSampleRate(44100.0)
             try audioSession.setPreferredIOBufferDuration(0.005)
             try audioSession.setActive(true)
@@ -291,7 +293,7 @@ extension RNCallKeep: CXProviderDelegate {
     /// Answer incoming call
     public func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
         print("[RNCallKeep][performAnswerCallAction]")
-        self.configureAudioSession()
+//        self.configureAudioSession()
         self.sendEventWithNameWrapper(RNCallKeepAnswerCallAction,
                                       body: ["callUUID": action.callUUID.uuidString.lowercased()])
         _answerCallAction = action
@@ -317,11 +319,11 @@ extension RNCallKeep: CXProviderDelegate {
 
     public func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {
         print("[RNCallKeep][didActivateAudioSession]")
-        let userInfo: [AnyHashable: Any] = [
-            AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue,
-            AVAudioSessionInterruptionOptionKey: AVAudioSession.InterruptionOptions.shouldResume.rawValue
-        ]
-        NotificationCenter.default.post(name: AVAudioSession.interruptionNotification, object: nil, userInfo: userInfo)
-        configureAudioSession()
+//        let userInfo: [AnyHashable: Any] = [
+//            AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue,
+//            AVAudioSessionInterruptionOptionKey: AVAudioSession.InterruptionOptions.shouldResume.rawValue
+//        ]
+//        NotificationCenter.default.post(name: AVAudioSession.interruptionNotification, object: nil, userInfo: userInfo)
+//        configureAudioSession()
     }
 }
