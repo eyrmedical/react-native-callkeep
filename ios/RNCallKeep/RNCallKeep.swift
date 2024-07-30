@@ -293,7 +293,7 @@ extension RNCallKeep: CXProviderDelegate {
     /// Answer incoming call
     public func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
         print("[RNCallKeep][performAnswerCallAction]")
-//        self.configureAudioSession()
+        self.configureAudioSession()
         self.sendEventWithNameWrapper(RNCallKeepAnswerCallAction,
                                       body: ["callUUID": action.callUUID.uuidString.lowercased()])
         _answerCallAction = action
