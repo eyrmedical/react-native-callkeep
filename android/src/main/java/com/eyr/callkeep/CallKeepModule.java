@@ -100,11 +100,6 @@ public class CallKeepModule extends ReactContextBaseJavaModule {
     }
   }
 
-  @Override
-  public boolean hasConstants() {
-    return true;
-  }
-
   @Nullable
   @Override
   public Map<String, Object> getConstants() {
