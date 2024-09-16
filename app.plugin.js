@@ -5,7 +5,8 @@ const {
     withMainActivity,
     AndroidConfig,
     WarningAggregator,
-} = require("expo/config-plugins");
+} = require("@expo/config-plugins");
+const { addImports } = require("@expo/config-plugins/build/android/codeMod");
 const { setColorItem } = AndroidConfig.Colors;
 const { setStringItem } = AndroidConfig.Strings;
 const { buildResourceItem } = AndroidConfig.Resources;
@@ -57,84 +58,72 @@ function withColors(config, colorsToConcat) {
     });
 }
 
-function addJavaImports(javaSource, javaImports) {
-    const lines = javaSource.split("\n");
-    const lineIndexWithPackageDeclaration = lines.findIndex((line) =>
-        line.match(/^package .*;$/)
-    );
-    for (const javaImport of javaImports) {
-        if (!javaSource.includes(javaImport)) {
-            const importStatement = `import ${javaImport};`;
-            lines.splice(lineIndexWithPackageDeclaration + 2, 0, importStatement);
-        }
-    }
-    return lines.join("\n");
-}
-
-function addLines(content, find, offset, toAdd) {
-    const lines = content.split("\n");
-    let lineIndex = lines.findIndex((line) => line.match(find));
-    for (const newLine of toAdd) {
-        if (!content.includes(newLine)) {
-            lines.splice(lineIndex + offset, 0, newLine);
-            lineIndex++;
-        }
-    }
-    return lines.join("\n");
-}
-
 function withCallkeepActivity(config) {
     return withMainActivity(config, (config) => {
-        const onCreate =
-            "    if (XiaomiUtilities.isMIUI()\n" +
-            "      &&\n" +
-            "      !XiaomiUtilities.isCustomPermissionGranted(\n" +
-            "        getApplicationContext(),\n" +
-            "        XiaomiUtilities.OP_SHOW_WHEN_LOCKED)) {\n" +
-            "      try {\n" +
-            "        Intent intent = XiaomiUtilities.getPermissionManagerIntent(getApplicationContext());\n" +
-            "        startActivity(intent);\n" +
-            "      } catch (Exception e) {\n" +
-            "        try {\n" +
-            "          Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);\n" +
-            '          intent.setData(Uri.parse("package:" + getPackageName()));\n' +
-            "          startActivity(intent);\n" +
-            "        } catch (Exception e1) {\n" +
-            "          e1.printStackTrace();\n" +
-            "        }\n" +
-            "      }\n" +
-            "    }";
-        const onNewIntent =
-            "  @Override\n" +
-            "  public void onNewIntent(Intent intent) {\n" +
-            "    try {\n" +
-            "      if (intent.getExtras() != null) {\n" +
-            "        showOnLockscreen(\n" +
-            "          MainActivity.this,\n" +
-            "          intent.getExtras().get(INITIAL_CALL_STATE_PROP_NAME) != null);\n" +
-            "      }\n" +
-            "    } catch (Exception e) {\n" +
-            "      e.printStackTrace();\n" +
-            "      showOnLockscreen(MainActivity.this, false);\n" +
-            "    }\n" +
-            "    super.onNewIntent(intent);\n" +
-            "  }\n";
-        if (config.modResults.language === "java") {
+        const onCreate = `
+    Log.d("MainActivity", "onCreate")
+    val initialIntent = intent
+    val context = applicationContext
+    if (initialIntent.action == CallKeepService.ACTION_ACCEPT_CALL) {
+      Utils.showOnLockscreen(this@MainActivity, true)
+      CallKeepService.reportMainActivityReady(context, initialIntent)
+      return
+    }
+    if (XiaomiUtilities.isMIUI()
+      &&
+      !XiaomiUtilities.isCustomPermissionGranted(
+        applicationContext,
+        XiaomiUtilities.OP_SHOW_WHEN_LOCKED
+      )
+    ) {
+      try {
+        val xiaomiModifyPermissionsIntent = XiaomiUtilities.getPermissionManagerIntent(
+          applicationContext
+        )
+        startActivity(xiaomiModifyPermissionsIntent)
+      } catch (e: Exception) {
+        try {
+          val xiaomiModifyPermissionsIntent =
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+          xiaomiModifyPermissionsIntent.setData(Uri.parse("package:$packageName"))
+          startActivity(xiaomiModifyPermissionsIntent)
+        } catch (e1: Exception) {
+          e1.printStackTrace()
+        }
+      }
+    }`;
+
+        const onNewIntent = `
+  override fun onNewIntent(intent: Intent) {
+    Log.d("MainActivity:onNewIntent", intent.action!!)
+    val context = applicationContext
+    if (intent.action == CallKeepService.ACTION_ACCEPT_CALL) {
+      Utils.showOnLockscreen(this@MainActivity, true)
+      CallKeepService.reportMainActivityReady(context, intent)
+    }
+    if (intent.action == CallKeepService.ACTION_END_CALL) {
+      Utils.showOnLockscreen(this@MainActivity, false)
+      CallKeepService.reportMainActivityReady(context, intent)
+    }
+    super.onNewIntent(intent)
+  }
+`;
+        if (config.modResults.language === "kt") {
             let content = config.modResults.contents;
-            content = addJavaImports(content, [
-                "static com.eyr.callkeep.Utils.INITIAL_CALL_STATE_PROP_NAME",
-                "static com.eyr.callkeep.Utils.showOnLockscreen",
-                "com.eyr.callkeep.XiaomiUtilities",
+            content = addImports(content, [
                 "android.content.Intent",
+                "com.eyr.callkeep.XiaomiUtilities",
+                "com.eyr.callkeep.CallKeepService",
+                "com.eyr.callkeep.Utils",
             ]);
 
             if (!content.includes("if (XiaomiUtilities.isMIUI()")) {
                 content = content.replace(
-                    /super\.onCreate\(null\);/,
-                    "super.onCreate(null);\n" + onCreate
+                    /super\.onCreate\(null\)/,
+                    "super.onCreate(null)" + onCreate
                 );
             }
-            if (!content.includes("public void onNewIntent(Intent intent) {")) {
+            if (!content.includes("override fun onNewIntent(intent: Intent) {")) {
                 content = content.replace(/}\n$/, onNewIntent + "}\n");
             }
             config.modResults.contents = content;
