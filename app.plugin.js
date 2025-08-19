@@ -12,25 +12,10 @@ const { setStringItem } = AndroidConfig.Strings;
 const { buildResourceItem } = AndroidConfig.Resources;
 const { withPermissions } = AndroidConfig.Permissions;
 
-const strings = [
-    ["call_notification_accept_button", "Accept"],
-    ["call_notification_decline_button", "Decline"],
-    ["call_notification_incoming_call", "Incoming video call from Eyr"],
-    ["call_notification_ongoing_call", "Ongoing video call from Eyr"],
-    ["call_notification_missed_call", "Missed video call from Eyr"],
-    ["call_group", "Calls"],
-];
-
-const colors = [
-    ["primary", "#750F37"],
-    ["secondary", "#FAB99C"],
-    ["danger", "#FE3B34"],
-    ["success", "#25863A"],
-];
 function withStrings(config, stringsToConcat) {
     return withStringsXml(config, (config) => {
         config.modResults = setStringItem(
-            stringsToConcat.map(([name, value, translatable = true]) =>
+            Object.entries(stringsToConcat).map(([name, value, translatable = true]) =>
                 buildResourceItem({
                     name,
                     value,
@@ -45,7 +30,7 @@ function withStrings(config, stringsToConcat) {
 
 function withColors(config, colorsToConcat) {
     return withAndroidColors(config, (config) => {
-        colorsToConcat.forEach(([name, value]) => {
+        Object.entries(colorsToConcat).map(([name, value]) => {
             config.modResults = setColorItem(
                 buildResourceItem({
                     name,
@@ -137,7 +122,7 @@ function withCallkeepActivity(config) {
     });
 }
 
-function withCallkeep(config) {
+function withCallkeep(config, { strings, colors }) {
     return withPlugins(config, [
         [withStrings, strings],
         [withColors, colors],
