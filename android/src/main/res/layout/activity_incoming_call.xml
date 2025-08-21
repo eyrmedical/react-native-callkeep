@@ -95,7 +95,7 @@
                 android:layout_marginTop="10dp"
                 android:textSize="14sp"
                 android:textColor="@color/action_text"
-                tools:text="@string/action_decline"
+                tools:text="@string/incoming_call_activity_decline_action"
                 android:gravity="center" />
         </LinearLayout>
 
@@ -121,7 +121,7 @@
                 android:layout_marginTop="10dp"
                 android:textSize="14sp"
                 android:textColor="@color/action_text"
-                tools:text="@string/action_accept"
+                tools:text="@string/incoming_call_activity_accept_action"
                 android:gravity="center" />
 
         </LinearLayout>

@@ -21,9 +21,11 @@
   "homepage": "https://github.com/eyrmedical/react-native-callkeep#readme",
   "typings": "./index.d.ts",
   "peerDependencies": {
-    "react-native": ">=0.60.0"
+    "react-native": "*",
+    "@expo/config-plugins": "*"
   },
   "devDependencies": {
-    "react-native": ">=0.60.0"
+    "react-native": "0.79.5",
+    "@expo/config-plugins": "~10.1.2"
   }
 }

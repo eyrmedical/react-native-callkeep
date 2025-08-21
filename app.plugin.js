@@ -1,47 +1,11 @@
 const {
-    withStringsXml,
-    withAndroidColors,
     withPlugins,
     withMainActivity,
     AndroidConfig,
     WarningAggregator,
 } = require("@expo/config-plugins");
 const { addImports } = require("@expo/config-plugins/build/android/codeMod");
-const { setColorItem } = AndroidConfig.Colors;
-const { setStringItem } = AndroidConfig.Strings;
-const { buildResourceItem } = AndroidConfig.Resources;
 const { withPermissions } = AndroidConfig.Permissions;
-
-function withStrings(config, stringsToConcat) {
-    return withStringsXml(config, (config) => {
-        config.modResults = setStringItem(
-            Object.entries(stringsToConcat).map(([name, value, translatable = true]) =>
-                buildResourceItem({
-                    name,
-                    value,
-                    translatable,
-                })
-            ),
-            config.modResults
-        );
-        return config;
-    });
-}
-
-function withColors(config, colorsToConcat) {
-    return withAndroidColors(config, (config) => {
-        Object.entries(colorsToConcat).map(([name, value]) => {
-            config.modResults = setColorItem(
-                buildResourceItem({
-                    name,
-                    value,
-                }),
-                config.modResults
-            );
-        });
-        return config;
-    });
-}
 
 function withCallkeepActivity(config) {
     return withMainActivity(config, (config) => {
@@ -122,10 +86,8 @@ function withCallkeepActivity(config) {
     });
 }
 
-function withCallkeep(config, { strings, colors }) {
+function withCallkeep(config) {
     return withPlugins(config, [
-        [withStrings, strings],
-        [withColors, colors],
         [
             withPermissions,
             [
