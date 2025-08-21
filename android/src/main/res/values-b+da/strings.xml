@@ -1,0 +1,4 @@
+<resources>
+    <string name="incoming_call_activity_accept_action">Svar</string>
+    <string name="incoming_call_activity_decline_action">Avslå</string>
+</resources>

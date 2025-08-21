@@ -1,0 +1,4 @@
+<resources>
+    <string name="incoming_call_activity_accept_action">Acceptera</string>
+    <string name="incoming_call_activity_decline_action">Neka</string>
+</resources>
