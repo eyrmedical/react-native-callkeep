@@ -268,20 +268,13 @@ public class RNCallKeep: RCTEventEmitter {
         cxCallUpdate.hasVideo = hasVideo
 
         self.callKeepProvider.reportNewIncomingCall(with: uuid,
-                                           update: cxCallUpdate,
-                                           completion: {err in
-            if let err = err {
-                print("[RNCallKeep][reportIncomingCall] Error report incoming call: \(err.localizedDescription) ")
+                                           update: cxCallUpdate) { error in
+            if let error = error {
+                print("[RNCallKeep][reportIncomingCall] Error report incoming call: \(error.localizedDescription)")
             } else {
-
-                // Call completion block
-                if let obj = object as AnyObject? {
-                    let block : () -> Void = unsafeBitCast(obj, to: ClosureType.self)
-                    block()
-                }
                 print("[RNCallKeep][reportIncomingCall] \(uuidString)")
             }
-        })
+        }
     }
 }
 
